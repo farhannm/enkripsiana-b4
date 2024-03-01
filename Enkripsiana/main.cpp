@@ -1,11 +1,13 @@
 #pragma warning(disable : 4996)
 #include <stdio.h>
 #include <stdlib.h>
+#include "enkripsiana.h"
 
 int main()
 {
     int opsi;
     bool isValid;
+    int encrypt;
 
     printf("+-------------------------------+\n");
     printf("|     E N K R I P S I A N A     |\n");
@@ -26,7 +28,7 @@ int main()
             printf("|              Enkripsi            |\n");
             printf("+----------------------------------+\n");
 
-
+            encrypt = encryptFile();
             isValid = true;
             break;
         case 2:

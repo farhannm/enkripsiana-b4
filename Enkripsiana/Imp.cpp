@@ -2,8 +2,11 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
-#include "enkripsiana.h"
 
+#define AES_256_KEY_LENGTH 32
+#define AES_BLOCK_SIZE 192
+
+// Key expansion algorithm
 void keyExpansion(const uint8_t* key, uint8_t* roundKeys) {
     uint32_t* w = (uint32_t*)roundKeys;
 
@@ -138,6 +141,7 @@ void mixColumns(uint8_t* state) {
     }
 }
 
+
 // AES-256 encryption algorithm
 void aes256EncryptBlock(const uint8_t* input, const uint8_t* roundKeys, uint8_t* output) {
     uint8_t state[AES_BLOCK_SIZE];
@@ -191,7 +195,7 @@ void readPrivateKey(uint8_t* key, size_t keyLength) {
     scanf("%s", key);
 }
 
-int encryptFile() {
+int main() {
     const char* inputFileName = "input.txt";
     const char* outputFileName = "encrypted_output.txt";
     const size_t keyLength = AES_256_KEY_LENGTH;
@@ -219,4 +223,6 @@ int encryptFile() {
     writeFile(outputFileName, encryptedOutput, sizeof(encryptedOutput));
 
     printf("Encryption successful. Encrypted data written to %s.\n", outputFileName);
+
+    return 0;
 }

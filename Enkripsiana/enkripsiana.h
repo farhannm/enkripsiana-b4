@@ -2,31 +2,25 @@
 #ifndef ENKRIPSIANA_H
 #define ENKRIPSIANA_H
 
-typedef unsigned char byte; // Tipe data untuk merepresentasikan byte (8-bit)
+#include <stdio.h>
+#include <stdint.h>
+#include <string.h>
 
-// Struktur data untuk menyimpan state enkripsi
-typedef struct {
-    byte data[4][4]; // Matriks 4x4 untuk menyimpan byte-byte state
-} State;
+#define AES_256_KEY_LENGTH 32
+#define AES_BLOCK_SIZE 192
 
-// Struktur data untuk menyimpan kunci ekspansi
-typedef struct {
-    byte data[11][16]; // Array 2 dimensi untuk menyimpan kunci ekspansi
-} ExpandedKey;
+void keyExpansion(const uint8_t* key, uint8_t* roundKeys);
+void addRoundKey(uint8_t* state, const uint8_t* roundKey);
+void subBytes(uint8_t* state);
+void shiftRows(uint8_t* state);
+uint8_t galoisMult(uint8_t a, uint8_t b);
+void mixColumns(uint8_t* state);
+void aes256EncryptBlock(const uint8_t* input, const uint8_t* roundKeys, uint8_t* output);
+size_t readFile(const char* filename, uint8_t* buffer, size_t bufferSize);
+void writeFile(const char* filename, const uint8_t* buffer, size_t dataSize);
+void readPrivateKey(uint8_t* key, size_t keyLength);
 
-// Fungsi untuk mengenkripsi file teks
-void encryptFile(const char* inputFile, const char* outputFile, const char* key);
-
-// Fungsi untuk ekspansi kunci utama
-void expandMainKey(const char* key, ExpandedKey* expandedKey);
-
-// Fungsi untuk pencampuran subkunci
-void mixSubKey(ExpandedKey* expandedKey);
-
-// Fungsi untuk transformasi: ByteSub, ShiftRow, dan MixColumn
-void transform(State* state);
-
-// Fungsi untuk pencampuran subkunci dengan XOR
-void mixSubKeyXOR(ExpandedKey* expandedKey, int round);
+//call in main
+int encryptFile();
 
 #endif 

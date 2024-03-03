@@ -26,7 +26,7 @@ int main()
             system("cls");
             printf("+----------------------------------+\n");
             printf("|              Enkripsi            |\n");
-            printf("+----------------------------------+\n");
+            printf("+----------------------------------+\n\n");
 
             encrypt = encryptFile();
             isValid = true;

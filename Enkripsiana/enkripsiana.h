@@ -54,7 +54,7 @@ void subBytes(uint8_t* state);
 void shiftRows(uint8_t* state);
 uint8_t galoisMult(uint8_t a, uint8_t b);
 void mixColumns(uint8_t* state);
-void aes256EncryptBlock(const uint8_t* input, const uint8_t* roundKeys, uint8_t* output);
+void aes128EncryptBlock(const uint8_t* input, const uint8_t* roundKeys, uint8_t* output);
 size_t readFile(const char* filename, uint8_t* buffer, size_t bufferSize);
 void writeFile(const char* filename, const uint8_t* buffer, size_t dataSize);
 void readPrivateKey(uint8_t* key, size_t keyLength);

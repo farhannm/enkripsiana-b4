@@ -7,7 +7,18 @@
 #include <string.h>
 
 #define AES_128_KEY_LENGTH 16
+#define AES_128_STATE_LENGTH 16
 #define AES_BLOCK_SIZE 128
+#define NR 10
+
+//Define AES state and key
+typedef struct {
+	uint8_t state[AES_128_STATE_LENGTH];
+} aes_state_t;
+
+typedef struct {
+	uint8_t key[AES_128_KEY_LENGTH];
+} aes_key_t;
 
 //sBox
 static const char sBox[256] = {

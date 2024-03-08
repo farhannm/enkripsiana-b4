@@ -12,8 +12,10 @@ void keyExpansion() {
 
 
 // AddRoundKey operation
-void addRoundKey() {
-
+void addRoundKey(aes_state_t *state, const aes_key_t *key) {
+    for (int i = 0; i < AES_128_STATE_LENGTH; i++) {
+        state->state[i] ^= key->key[i];
+    }
 }
 
 // SubBytes operation

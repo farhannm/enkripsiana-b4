@@ -34,7 +34,7 @@ void shiftRows(uint8_t* state) {
                 temp[r][c] = state[r * 4 + c];
             }
             else { 
-                temp[r][c] = state[r * 4 + (c + r) % 4]; 
+                temp[r][c] = state[r * 4 + (c + r) % 4]; // Pergeseran baris
             }
         }
     }

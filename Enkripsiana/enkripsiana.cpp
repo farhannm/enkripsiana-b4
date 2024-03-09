@@ -24,9 +24,29 @@ void subBytes() {
 }
 
 // ShiftRows operation
-void shiftRows() {
-   
+void shiftRows(uint8_t* state) {
+    uint8_t temp[4][4]; // Matriks sementara untuk menyimpan hasil pergeseran
+
+    // Proses ShiftRows
+    for (int r = 0; r < 4; r++) {
+        for (int c = 0; c < 4; c++) {
+            if (r == 0) { // Jika ini adalah baris pertama, tidak ada pergeseran
+                temp[r][c] = state[r * 4 + c];
+            }
+            else { 
+                temp[r][c] = state[r * 4 + (c + r) % 4]; 
+            }
+        }
+    }
+
+    // Mengembalikan hasil pergeseran ke state asli
+    for (int r = 0; r < 4; r++) {
+        for (int c = 0; c < 4; c++) {
+            state[r * 4 + c] = temp[r][c];
+        }
+    }
 }
+
 
 // MixColumns operation
 void mixColumns() {

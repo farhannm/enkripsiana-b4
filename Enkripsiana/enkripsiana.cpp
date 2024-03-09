@@ -49,8 +49,22 @@ void shiftRows(uint8_t* state) {
 
 
 // MixColumns operation
-void mixColumns() {
+void mixColumns(aes_state_t* state) {
+    uint8_t(*sBox)(uint8_t);
+    uint8_t temp[4];
+    int i;
+    i = 0;
+    for (i < AES_128_STATE_LENGTH; ++i;) {
+        temp[0] = state->state[i];
+        temp[1] = state->state[i + 4];
+        temp[2] = state->state[i + 8];
+        temp[3] = state->state[i + 12];
 
+        state->state[i] = sBox(temp[0] ^ temp[3]) ^ temp[1];
+        state->state[i + 4] = sBox(temp[0] ^ temp[3]) ^ temp[1];
+        state->state[i + 8] = sBox(temp[0] ^ temp[3]) ^ temp[1];
+        state->state[i + 12] = sBox(temp[0] ^ temp[3]) ^ temp[1];
+    }
 }
 
 // AES-128 encryption algorithm

@@ -54,7 +54,7 @@ void mixColumns(aes_state_t* state) {
     uint8_t temp[4];
     int i;
     i = 0;
-    for (i < AES_128_STATE_LENGTH; ++i;) {
+    for (i < 4; ++i;) {
         temp[0] = state->state[i];
         temp[1] = state->state[i + 4];
         temp[2] = state->state[i + 8];

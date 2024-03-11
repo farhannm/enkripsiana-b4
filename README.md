@@ -1,4 +1,5 @@
 ![alt text](https://github.com/farhannm/enkripsiana-b4/blob/master/assets/Welcome.png)
+![alt text](https://github.com/farhannm/enkripsiana-b4/blob/master/assets/Flow%20Diagram.png)
 # Enkripsiana - Aplikasi Enkripsi & Deskripsi Berbasis CLI Menggunakan Bahasa C dengan Algoritma AES
 
 Enkripsiana adalah aplikasi enkripsi & deskripsi file berbasis _**CLI**_ menggunakan Bahasa C dengan algoritma **AES**.

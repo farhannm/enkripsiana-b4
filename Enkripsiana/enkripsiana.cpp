@@ -19,8 +19,10 @@ void addRoundKey(aes_state_t *state, const aes_key_t *key) {
 }
 
 // SubBytes operation
-void subBytes() {
-
+void subBytes(aes_state_t* state) {
+    for (int i = 0; i < AES_128_STATE_LENGTH; i++) {
+        state->state[i] = sBox[state->state[i]];
+    }
 }
 
 // ShiftRows operation

@@ -42,10 +42,10 @@ static const char sBox[256] = {
 
 //AES Flow 
 void keyExpansion();
-void addRoundKey();
-void subBytes();
-void shiftRows();
-void mixColumns();
+void addRoundKey(aes_state_t* state, const aes_key_t* key);
+void subBytes(aes_state_t *state);
+void shiftRows(uint8_t* state);
+void mixColumns(aes_state_t* state);
 void aes128EncryptBlock();
 void readPrivateKey();
 int encryptFile();

@@ -6,8 +6,47 @@
 #include "dirent.h"
 #include "enkripsiana.h"
 
-void keyExpansion() {
+void keyExpansionCore(unsigned char* in, unsigned char i) {
+//Rotate Left:
+    unsigned int* q = (unsigned int*)in;
+    *q = (*q >> 8) | ((*q & 0xff) << 24);
 
+// S-Box 4 bytes:
+    in[0] = sBox[in[0]]; in[1] = sBox[in[1]];
+    in[2] = sBox[in[2]]; in[3] = sBox[in[3]];
+
+//Rcon
+    in[0] ^= Rcon[i];
+}
+
+void keyExpansion(unsigned char* inputKey, unsigned char* expandedKeys) {
+    //16 Original key:
+    for (int i = 0; i < 16; i++)
+        expandedKeys[i] = inputKey[i];
+
+    //Variables:
+    int bytesGenerated = 16;
+    int RconIteration = 1;
+    unsigned char temp[4];
+
+    while (bytesGenerated < 176) {
+        //Read 4 bytes for the core:
+        for (int i = 0; i < 4; i++)
+            temp[i] = expandedKeys[i + bytesGenerated - 4];
+
+        //Perform the core once for each 16 byte key:
+        if (bytesGenerated % 16 == 0) {
+            keyExpansionCore(temp, RconIteration);
+            RconIteration++;
+        }
+
+        //XOR temp with [bytesGenerates-16], and store in expandedKeys:
+        for (unsigned char a = 0; a < 4; a++) {
+            expandedKeys[bytesGenerated] =
+                expandedKeys[bytesGenerated - 16] ^ temp[a];
+            bytesGenerated++;
+        }
+    }
 }
 
 

@@ -50,7 +50,7 @@ void shiftRows(uint8_t* state) {
 
 // MixColumns operation
 void mixColumns(aes_state_t* state) {
-    uint8_t(*sBox)(uint8_t);
+    uint8_t(*sBox)(uint8_t) {};
     uint8_t temp[4];
     int i;
     i = 0;

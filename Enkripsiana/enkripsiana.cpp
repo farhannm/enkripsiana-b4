@@ -92,10 +92,23 @@ void shiftRows(uint8_t* state) {
 // MixColumns operation
 void mixColumns(aes_state_t* state) {
     uint8_t(*sBox)(uint8_t) {};
-    uint8_t temp[4];
-    int i;
+    int i, j;
     i = 0;
+    j = 0;
+    uint8_t temp[i][j];
+
     for (i < 4; ++i;) {
+        for (j < 4; ++j;) {
+            temp[i][j] = state->state[j];
+            temp[i][j] = state->state[j + 4];
+            temp[i][j] = state->state[j + 8];
+            temp[i][j] = state->state[j + 12];
+
+            state->state[j] = sBox(temp[0] ^ temp[3]) ^ temp[1];
+            state->state[j + 4] = sBox(temp[0] ^ temp[3]) ^ temp[1];
+            state->state[j + 8] = sBox(temp[0] ^ temp[3]) ^ temp[1];
+            state->state[j + 12] = sBox(temp[0] ^ temp[3]) ^ temp[1];
+        }
         temp[0] = state->state[i];
         temp[1] = state->state[i + 4];
         temp[2] = state->state[i + 8];

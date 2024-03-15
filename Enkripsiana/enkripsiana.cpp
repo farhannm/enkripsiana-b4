@@ -88,36 +88,53 @@ void shiftRows(uint8_t* state) {
     }
 }
 
+// Fungsi Galois Multiply dalam Galois Field
+uint8_t gmul(uint8_t a, uint8_t b) {
+    // gmul merupakan nama fungsi dengan parameter uint8_t a, uint8_t b, 
+    // a dan b adalah parameter input yang masing masing mewakili satu byte kunci encrypt 
+
+    uint8_t p = 0;  // membuat variabel p bertipe uint8_t yang nantinya akan terlibat dalam proses XOR
+    uint8_t temp;   // membuat variabel temp bertipe uint8_t sebagai penampung bit
+    int i = 0;      // membuat variabel i bertipe integer untuk perulangan dan di assign 0 
+
+    for (i < 8; i++;) {// Jika i bernilai kurang dari 8 maka akan melakukan proses, dan setiap kali perulangan terjadi i bertambah 1
+        if (b & 1) { // operasi bitwise antara "b" dan 1 untuk mengecek bit paling tidak signifikan bernilai 1 atau tidak
+            p ^= a; // variabel p di XOR kan dengan a
+        }
+
+        temp = a & 0x80;    // operasi bitwise antara a dengan 0x80 sebagai bit paling signifikan
+                            // 0x80 adalah nilai konstanta heksa yang mewakili nilai 128
+
+        a <<= 1;            // menggeser setiap bit dalam "a" ke kiri
+                            // misal 000110 menjadi 001100
+
+        if (temp) {         // mengecek apakah nilai temp true atau tidak
+            a ^= 0x1B;      // operasi XOR "a" dengan 0x1B untuk mengecek apakah operasi perkalian dilakukan dengan benar
+                            // 0x1B digunakan karena sesuai dengan polinomial ireduksi
+        }
+
+        b >>= 1;            // menggeser setiap bit dalam "b" ke kanan
+    }
+
+    return p;               // mengembalikan nilai p
+}
 
 // MixColumns operation
-void mixColumns(aes_state_t* state) {
-    uint8_t(*sBox)(uint8_t) {};
-    int i, j;
-    i = 0;
-    j = 0;
-    uint8_t temp[i][j];
+void mixColumns(uint8_t* state) {
+    uint8_t temp[4][4];
 
-    for (i < 4; ++i;) {
-        for (j < 4; ++j;) {
-            temp[i][j] = state->state[j];
-            temp[i][j] = state->state[j + 4];
-            temp[i][j] = state->state[j + 8];
-            temp[i][j] = state->state[j + 12];
+    for (int i = 0; i < 4; i++) {
+        temp[0][i] = gmul(0x02, state[0 + i]) ^ gmul(0x03, state[4 + i]) ^ state[8 + i] ^ state[12 + i];
+        temp[1][i] = state[0 + i] ^ gmul(0x02, state[4 + i]) ^ gmul(0x03, state[8 + i]) ^ state[12 + i];
+        temp[2][i] = state[0 + i] ^ state[4 + i] ^ gmul(0x02, state[8 + i]) ^ gmul(0x03, state[12 + i]);
+        temp[3][i] = gmul(0x03, state[0 + i]) ^ state[4 + i] ^ state[8 + i] ^ gmul(0x02, state[12 + i]);
+    }
 
-            state->state[j] = sBox(temp[0] ^ temp[3]) ^ temp[1];
-            state->state[j + 4] = sBox(temp[0] ^ temp[3]) ^ temp[1];
-            state->state[j + 8] = sBox(temp[0] ^ temp[3]) ^ temp[1];
-            state->state[j + 12] = sBox(temp[0] ^ temp[3]) ^ temp[1];
+    // Return the mixed result to the original state
+    for (int r = 0; r < 4; r++) {
+        for (int i = 0; i < 4; i++) {
+            state[r * 4 + i] = temp[r][i];
         }
-        temp[0] = state->state[i];
-        temp[1] = state->state[i + 4];
-        temp[2] = state->state[i + 8];
-        temp[3] = state->state[i + 12];
-
-        state->state[i] = sBox(temp[0] ^ temp[3]) ^ temp[1];
-        state->state[i + 4] = sBox(temp[0] ^ temp[3]) ^ temp[1];
-        state->state[i + 8] = sBox(temp[0] ^ temp[3]) ^ temp[1];
-        state->state[i + 12] = sBox(temp[0] ^ temp[3]) ^ temp[1];
     }
 }
 

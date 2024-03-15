@@ -122,8 +122,17 @@ void mixColumns(aes_state_t* state) {
 }
 
 // AES-128 encryption algorithm
-void aes128EncryptBlock() {
-    
+void aes128EncryptBlock(&state, &key) {
+    for (int round = 1; round < NR; round++)
+    {
+        subBytes(&state);
+        shiftRows(&state);
+        mixColumns(&state);
+        addRoundKey(&state, &key[round]);
+    }
+    subBytes(&state);
+    shiftRows(&state);
+    addRoundKey(&state, &key[NR]);
 }
 
 size_t readFile(const char* filename, uint8_t* buffer, size_t bufferSize) {

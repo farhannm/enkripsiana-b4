@@ -2,8 +2,10 @@
 #ifndef FAREL_H
 #define FAREL_H
 
-#include <stdio.h>
 #include <stdint.h>
-#include <string.h>
+#include "enkripsiana.h"
+
+void keyExpansionCore(unsigned char* in, unsigned char i);
+void keyExpansion(unsigned char* inputKey, unsigned char* expandedKeys);
 
 #endif // !FAREL_H

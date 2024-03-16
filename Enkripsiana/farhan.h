@@ -2,8 +2,9 @@
 #ifndef FARHAN_H
 #define FARHAN_H
 
-#include <stdio.h>
 #include <stdint.h>
-#include <string.h>
+#include "enkripsiana.h"
+
+void subBytes(aes_state_t* state);
 
 #endif // !FARHAN_H

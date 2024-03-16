@@ -5,6 +5,11 @@
 #include <string.h>
 #include "dirent.h"
 #include "enkripsiana.h"
+#include "farhan.h"
+#include "febi.h"
+#include "hasbi.h"
+#include "indah.h"
+#include "farel.h"
 
 void keyExpansionCore(unsigned char* in, unsigned char i) {
 //Rotate Left:
@@ -185,8 +190,23 @@ int fileExists(const char* filename) {
     return 0;
 }
 
-void readPrivateKey() {
-
+void readPrivateKey(uint8_t* key, size_t keyLength) {
+    char inputKey[17]; // 16 karakter + 1 untuk null terminator
+    while (1) {
+        printf("[INPUT] Masukkan kunci (perlu 16 karakter): ");
+        scanf("%16s", inputKey);
+        if (strlen(inputKey) == 16) {
+            break; // Keluar dari loop jika panjang kunci sesuai
+        }
+        else {
+            printf("\n[WARNING] Kunci harus memiliki panjang 16 karakter.\n");
+            // Membersihkan input buffer
+            int c;
+            while ((c = getchar()) != '\n' && c != EOF) {}
+        }
+    }
+    // Salin kunci ke dalam buffer keluaran
+    memcpy(key, inputKey, 16);
 }
 
 

@@ -9,15 +9,6 @@
 #define AES_BLOCK_SIZE 128
 #define NR 10
 
-//Define AES state and key
-typedef struct {
-	uint8_t state[AES_128_STATE_LENGTH];
-} aes_state_t;
-
-typedef struct {
-	uint8_t key[AES_128_KEY_LENGTH];
-} aes_key_t;
-
 //sBox
 static const char sBox[256] = {
 		0x63, 0x7C, 0x77, 0x7B, 0xF2, 0x6B, 0x6F, 0xC5, 0x30, 0x01, 0x67, 0x2B, 0xFE, 0xD7, 0xAB, 0x76,
@@ -59,8 +50,6 @@ static const char Rcon[256] = {
 };
 
 //Global Flow
-void addRoundKey(aes_state_t* state, const aes_key_t* key);
-void shiftRows(uint8_t* state);
 void readPrivateKey(uint8_t* key, size_t keyLength);
 int encryptFile();
 

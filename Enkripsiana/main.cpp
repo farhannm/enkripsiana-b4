@@ -16,7 +16,6 @@ int main()
 {
     int opsi;
     bool isValid;
-    int encrypt;
 
     printf("+-------------------------------+\n");
     printf("|     E N K R I P S I A N A     |\n");
@@ -37,7 +36,7 @@ int main()
             printf("|              Enkripsi            |\n");
             printf("+----------------------------------+\n\n");
 
-            encrypt = encryptFile();
+            return encryptFile();
             isValid = true;
             break;
         case 2:

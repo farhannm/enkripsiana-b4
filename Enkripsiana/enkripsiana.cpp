@@ -58,16 +58,16 @@ void keyExpansion(uint8_t* inputKey, uint8_t* expandedKeys) {
 
 
 // AddRoundKey operation
-void addRoundKey(aes_state_t *state, const aes_key_t *key) {
+void addRoundKey(uint8_t *state, uint8_t *key) {
     for (int i = 0; i < AES_128_STATE_LENGTH; i++) {
-        state->state[i] ^= key->key[i];
+        state[i] ^= key[i];
     }
 }
 
 // SubBytes operation
-void subBytes(aes_state_t* state) {
+void subBytes(uint8_t* state) {
     for (int i = 0; i < AES_128_STATE_LENGTH; i++) {
-        state->state[i] = sBox[state->state[i]];
+        state[i] = sBox[state[i]];
     }
 }
 
@@ -146,17 +146,23 @@ void mixColumns(uint8_t* state) {
 }
 
 // AES-128 encryption algorithm
-void aes128EncryptBlock(aes_state_t *state, const aes_key_t *key) {
-    for (int round = 1; round < NR; round++)
-    {
+void aes128EncryptBlock(uint8_t* input, uint8_t* key, uint8_t* output) {
+    uint8_t state[AES_BLOCK_SIZE];
+    memcpy(state, input, AES_BLOCK_SIZE);
+
+
+    for (int round = 1; round < 10; ++round) {
         subBytes(state);
-        shiftRows(state->state);
-        mixColumns(state->state);
+        shiftRows(state);
+        mixColumns(state);
         addRoundKey(state, &key[round]);
     }
+
     subBytes(state);
-    shiftRows(state->state);
+    shiftRows(state);
     addRoundKey(state, &key[NR]);
+
+    memcpy(output, state, AES_BLOCK_SIZE);
 }
 
 size_t readFile(const char* filename, uint8_t* buffer, size_t bufferSize) {
@@ -238,7 +244,6 @@ void listFilesInDirectory(const char* directory) {
     }
 }
 
-
 int encryptFile() {
     const char* inputDirectory = "Crypto"; // Current directory
     const size_t keyLength = AES_128_KEY_LENGTH;
@@ -289,6 +294,36 @@ int encryptFile() {
         snprintf(fullInputPath, sizeof(fullInputPath), "%s/%s", inputDirectory, inputFileName);
     }
 
+    readPrivateKey(key, keyLength);
+
+    uint8_t inputData[AES_BLOCK_SIZE];
+    size_t bytesRead = readFile(fullInputPath, inputData, sizeof(inputData));
+    if (bytesRead == 0) {
+        return 1;
+    }
+
+    uint8_t roundKeys[11 * AES_BLOCK_SIZE];
+    keyExpansion(key, roundKeys);
+
+    // Mendapatkan nama direktori dari path input
+    char outputDirectory[256];
+    strncpy(outputDirectory, inputDirectory, sizeof(outputDirectory));
+
+    // Membuat nama file output sesuai dengan input pengguna
+    char outputFileName[256];
+    snprintf(outputFileName, sizeof(outputFileName), "%s/encrypted_%s", outputDirectory, inputFileName);
+
+    uint8_t encryptedOutput[AES_BLOCK_SIZE];
+    aes128EncryptBlock(inputData, roundKeys, encryptedOutput);
+
+    writeFile(outputFileName, encryptedOutput, sizeof(encryptedOutput));
+
+    // Hapus file asli
+    remove(fullInputPath);
+
+    printf("[SUCCESS] File berhasil dienkripsi. Enkripsi tersimpan di '%s'\n", outputFileName);
+
     return 0;
 }
+
 

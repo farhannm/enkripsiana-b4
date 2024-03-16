@@ -5,6 +5,6 @@
 #include <stdint.h>
 #include "enkripsiana.h"
 
-void subBytes(aes_state_t* state);
+void subBytes(uint8_t* state);
 
 #endif // !FARHAN_H

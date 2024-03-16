@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include "enkripsiana.h"
 
-void keyExpansionCore(unsigned char* in, unsigned char i);
-void keyExpansion(unsigned char* inputKey, unsigned char* expandedKeys);
+void keyExpansionCore(uint8_t* in, unsigned char i);
+void keyExpansion(uint8_t* inputKey, uint8_t* expandedKeys);
 
 #endif // !FAREL_H

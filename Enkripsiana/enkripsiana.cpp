@@ -11,20 +11,22 @@
 #include "indah.h"
 #include "farel.h"
 
-void keyExpansionCore(unsigned char* in, unsigned char i) {
-//Rotate Left:
+void keyExpansionCore(uint8_t* in, unsigned char i) {
+    //Rotate Left:
     unsigned int* q = (unsigned int*)in;
     *q = (*q >> 8) | ((*q & 0xff) << 24);
 
-// S-Box 4 bytes:
-    in[0] = sBox[in[0]]; in[1] = sBox[in[1]];
-    in[2] = sBox[in[2]]; in[3] = sBox[in[3]];
+    // S-Box 4 bytes:
+    in[0] = sBox[in[0]]; 
+    in[1] = sBox[in[1]];
+    in[2] = sBox[in[2]]; 
+    in[3] = sBox[in[3]];
 
-//Rcon
+    //Rcon
     in[0] ^= Rcon[i];
 }
 
-void keyExpansion(unsigned char* inputKey, unsigned char* expandedKeys) {
+void keyExpansion(uint8_t* inputKey, uint8_t* expandedKeys) {
     //16 Original key:
     for (int i = 0; i < 16; i++)
         expandedKeys[i] = inputKey[i];

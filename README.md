@@ -37,7 +37,7 @@ B4 entity:
   4. Indah Ratu Pramudita - **231511050** - [indah](https://github.com/indahrtp)
   5. R. Farrel Walid - **231511060** - [farrel](https://github.com/WalidImtz)
 
-Manajer:
+Manajer: <br>
   **|** Yadhi Aditya Permana, S.T., M.Kom <br>
   **|** NIP _197912242008121001_
 

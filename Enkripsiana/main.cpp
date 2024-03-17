@@ -1,13 +1,16 @@
 #pragma warning(disable : 4996)
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <stdint.h>
+#include <string.h>
+#include "dirent.h"
 #include "enkripsiana.h"
 
 int main()
 {
     int opsi;
     bool isValid;
-    int encrypt;
 
     printf("+-------------------------------+\n");
     printf("|     E N K R I P S I A N A     |\n");
@@ -15,23 +18,34 @@ int main()
 
     do {
         printf("\nPilih aksi yang akan dilakukan : \n");
-        printf("(1). Enkripsi \n");
-        printf("(2). Deskripsi\n");
-        printf("(3). Keluar dari aplikasi \n");
-        printf("\n[>>] Masukkan pilihan (1-3) : ");
+        printf("(1). Buat File \n");
+        printf("(2). Enkripsi \n");
+        printf("(3). Deskripsi\n");
+        printf("(4). Keluar dari aplikasi \n");
+        printf("\n[>>] Masukkan pilihan (1-4) : ");
         scanf("%d", &opsi);
 
         switch (opsi) {
         case 1:
             system("cls");
             printf("+----------------------------------+\n");
+            printf("|             Buat File            |\n");
+            printf("+----------------------------------+\n\n");
+
+            return BuatFile();
+            isValid = true;
+
+            break;
+        case 2:
+            system("cls");
+            printf("+----------------------------------+\n");
             printf("|              Enkripsi            |\n");
             printf("+----------------------------------+\n\n");
 
-            encrypt = encryptFile();
+            return encryptFile();
             isValid = true;
             break;
-        case 2:
+        case 3:
             system("cls");
             printf("+--------------------------------+\n");
             printf("|            Deskripsi           |\n");
@@ -39,7 +53,7 @@ int main()
 
             isValid = true;
             break;
-        case 3:
+        case 4:
             printf("\nKeluar dari aplikasi...\n");
             exit(0);
             break;

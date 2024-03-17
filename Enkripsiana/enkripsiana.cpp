@@ -161,15 +161,23 @@ void mixColumns(uint8_t* state) {
 }
 
 // AES-128 encryption algorithm
+<<<<<<< Updated upstream
 void aes128EncryptBlock(aes_state_t* state, const aes_key_t* key) {
     for (int round = 1; round < NR; round++) {
+=======
+void aes128EncryptBlock(uint8_t* state, uint8_t* key) {
+    for (int round = 1; round < 10; ++round) {
+>>>>>>> Stashed changes
         subBytes(state);
         shiftRows(state->state);
         mixColumns(state->state);
         addRoundKey(state, &key[round]);
     }
+<<<<<<< Updated upstream
 
     // Final round
+=======
+>>>>>>> Stashed changes
     subBytes(state);
     shiftRows(state->state);
     addRoundKey(state, &key[NR]);
@@ -245,6 +253,8 @@ int encryptFile() {
     const char* inputDirectory = "Crypto"; // Current directory
     const size_t keyLength = AES_128_KEY_LENGTH;
     uint8_t key[AES_128_KEY_LENGTH];
+    aes_state_t state;
+    aes_key_t keyStruct;
 
     // Memeriksa apakah direktori "Crypto" memiliki file
     DIR* dir = opendir(inputDirectory);
@@ -291,6 +301,36 @@ int encryptFile() {
         snprintf(fullInputPath, sizeof(fullInputPath), "%s/%s", inputDirectory, inputFileName);
     }
 
+<<<<<<< Updated upstream
+=======
+    readPrivateKey(key, keyLength);
+
+    uint8_t inputData[AES_BLOCK_SIZE];
+    size_t bytesRead = readFile(fullInputPath, inputData, sizeof(inputData));
+    if (bytesRead == 0) {
+        return 1;
+    }
+
+    // Mendapatkan nama direktori dari path input
+    char outputDirectory[256];
+    strncpy(outputDirectory, inputDirectory, sizeof(outputDirectory));
+
+    // Membuat nama file output sesuai dengan input pengguna
+    char outputFileName[256];
+    snprintf(outputFileName, sizeof(outputFileName), "%s/encrypted_%s", outputDirectory, inputFileName);
+
+    // Enkripsi file
+    void aes128EncryptBlock(uint8_t* state, uint8_t* key);
+
+    // Mengubah isi file menjadi chiper text
+    writeFile(outputFileName, state.state, sizeof(state.state));
+
+    // Hapus file asli
+    remove(fullInputPath);
+
+    printf("[SUCCESS] File berhasil dienkripsi. Enkripsi tersimpan di '%s'\n", outputFileName);
+
+>>>>>>> Stashed changes
     return 0;
 }
 

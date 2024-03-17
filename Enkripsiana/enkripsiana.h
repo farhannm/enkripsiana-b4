@@ -49,9 +49,14 @@ static const char Rcon[256] = {
 		0x61, 0xc2, 0x9f, 0x25, 0x4a, 0x94, 0x33, 0x66, 0xcc, 0x83, 0x1d, 0x3a, 0x74, 0xe8, 0xcb, 0x8d
 };
 
+//UI
+void mainMenu();
+void backOrExit();
+
 //Global Flow
 void readPrivateKey(uint8_t* key, size_t keyLength);
 int encryptFile();
+int decryptFile();
 
 size_t readFile(const char* filename, uint8_t* buffer, size_t bufferSize);
 void writeFile(const char* filename, const uint8_t* buffer, size_t dataSize);

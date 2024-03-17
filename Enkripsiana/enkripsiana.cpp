@@ -260,9 +260,10 @@ int encryptFile() {
     int fileCount = 0;
 
     // Menghitung jumlah file dalam direktori "Crypto"
+    printf("Daftar file yang tersedia untuk dienkripsi:\n");
     while ((entry = readdir(dir)) != NULL) {
         if (entry->d_type == DT_REG) {
-            fileCount++;
+            printf("%d. %s\n", ++fileCount, entry->d_name);
         }
     }
 
@@ -274,25 +275,39 @@ int encryptFile() {
         return 1;
     }
 
-    listFilesInDirectory(inputDirectory);
+    // Meminta pengguna untuk memasukkan nomor indeks file
+    int fileIndex;
+    do {
+        printf("\n[INPUT] Masukkan nomor indeks file yang akan dienkripsi : ");
+        if (scanf("%d", &fileIndex) != 1) {
+            printf("[ERROR] Masukkan nomor indeks yang valid.\n");
+            while (getchar() != '\n'); // Membersihkan input buffer
+        }
+        else if (fileIndex < 1 || fileIndex > fileCount) {
+            printf("[ERROR] Nomor indeks tidak valid.\n");
+        }
+        else {
+            break; // Keluar dari loop jika nomor indeks valid
+        }
+    } while (1);
 
+    // Mencari nama file yang sesuai dengan nomor indeks
+    dir = opendir(inputDirectory);
+    int currentIndex = 0;
     char inputFileName[256];
-    printf("\n[INPUT] Masukkan nama file yang akan dienkripsi : ");
-    scanf("%s", inputFileName);
+    while ((entry = readdir(dir)) != NULL) {
+        if (entry->d_type == DT_REG) {
+            currentIndex++;
+            if (currentIndex == fileIndex) {
+                strcpy(inputFileName, entry->d_name);
+                break;
+            }
+        }
+    }
+    closedir(dir);
 
     char fullInputPath[512];
     snprintf(fullInputPath, sizeof(fullInputPath), "%s/%s", inputDirectory, inputFileName);
-
-    while (!fileExists(fullInputPath)) {
-        system("cls");
-        printf("[ERROR] File '%s' tidak ada di dalam direktori.\n\n", inputFileName);
-
-        listFilesInDirectory(inputDirectory);
-
-        printf("\n[INPUT] Masukkan nama file yang akan dienkripsi : ");
-        scanf("%s", inputFileName);
-        snprintf(fullInputPath, sizeof(fullInputPath), "%s/%s", inputDirectory, inputFileName);
-    }
 
     readPrivateKey(key, keyLength);
 
@@ -323,7 +338,97 @@ int encryptFile() {
 
     printf("[SUCCESS] File berhasil dienkripsi. Enkripsi tersimpan di '%s'\n", outputFileName);
 
+    backOrExit();
+
     return 0;
 }
 
+int decryptFile() {
+    printf("\n[WARNING] Belum diimplementasikan.\n");
+
+    backOrExit();
+
+    return 0;
+}
+
+void backOrExit() {
+    int opsi, encrypt;
+    bool isValid;
+
+    do {
+        printf("\n[INFO]Proses selesai\n\n");
+        printf("(1). Kembali ke menu utama \n");
+        printf("(2). Keluar dari aplikasi \n");
+        printf("\n[>>] Masukkan pilihan (1/2) : ");
+        scanf("%d", &opsi);
+
+        switch (opsi) {
+        case 1:
+            system("cls");
+            
+            mainMenu();
+            isValid = true;
+            break;
+        case 2:
+            printf("\nKeluar dari aplikasi...\n");
+            exit(0);
+            break;
+        default:
+            printf("\nInput tidak valid. Masukkan angka antara 1 hingga 3.\n");
+            isValid = false;
+            break;
+
+        }
+
+    } while (!isValid);
+}
+
+void mainMenu() {
+    int opsi, encrypt, decrypt;
+    bool isValid;
+
+    printf("+-------------------------------+\n");
+    printf("|     E N K R I P S I A N A     |\n");
+    printf("+-------------------------------+\n");
+
+    do {
+        printf("\nPilih aksi yang akan dilakukan : \n");
+        printf("(1). Enkripsi \n");
+        printf("(2). Deskripsi\n");
+        printf("(3). Keluar dari aplikasi \n");
+        printf("\n[>>] Masukkan pilihan (1-3) : ");
+        scanf("%d", &opsi);
+
+        switch (opsi) {
+        case 1:
+            system("cls");
+            printf("+----------------------------------+\n");
+            printf("|              Enkripsi            |\n");
+            printf("+----------------------------------+\n\n");
+
+            encrypt = encryptFile();
+            isValid = true;
+            break;
+        case 2:
+            system("cls");
+            printf("+--------------------------------+\n");
+            printf("|            Deskripsi           |\n");
+            printf("+--------------------------------+\n");
+
+            decrypt = decryptFile();
+            isValid = true;
+            break;
+        case 3:
+            printf("\nKeluar dari aplikasi...\n");
+            exit(0);
+            break;
+        default:
+            printf("\nInput tidak valid. Masukkan angka antara 1 hingga 3.\n");
+            isValid = false;
+            break;
+
+        }
+
+    } while (!isValid);
+}
 

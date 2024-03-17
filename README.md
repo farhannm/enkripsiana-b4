@@ -38,7 +38,7 @@ B4 entity:
   5. R. Farrel Walid - **231511060** - [farrel](https://github.com/WalidImtz)
 
 Manajer:
-  **|** Yadhi Aditya Permana, S.T., M.Kom 
+  **|** Yadhi Aditya Permana, S.T., M.Kom <br>
   **|** NIP _197912242008121001_
 
 ## License

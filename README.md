@@ -1,5 +1,4 @@
 ![alt text](https://github.com/farhannm/enkripsiana-b4/blob/master/assets/Welcome.png)
-![alt text](https://github.com/farhannm/enkripsiana-b4/blob/master/assets/Flow%20Diagram.png)
 # Enkripsiana - Aplikasi Enkripsi & Deskripsi Berbasis CLI Menggunakan Bahasa C dengan Algoritma AES
 
 Enkripsiana adalah aplikasi enkripsi & deskripsi file berbasis _**CLI**_ menggunakan Bahasa C dengan algoritma **AES**.
@@ -27,9 +26,8 @@ Berikut adalah struktur atau hirarki program yang digunakan dalam proyek ini:
 ## Fitur
 1. Enkripsi file dengan panjang kunci minimal **16** karakter
 2. Deskripsi file dengan kunci **yang sama** saat enkripsi
-3. Verifikasi dan validasi
-4. User interface yang interaktif
-5. Pengelolaan error
+3. Validasi
+4. Pengelolaan error
 
 ## Our valuable team
 B4 entity:
@@ -40,7 +38,8 @@ B4 entity:
   5. R. Farrel Walid - **231511060** - [farrel](https://github.com/WalidImtz)
 
 Manajer:
-  - Yadhi Aditya Permana, S.T., M.Kom - **NIP** 197912242008121001
+  **|** Yadhi Aditya Permana, S.T., M.Kom 
+  **|** NIP _197912242008121001_
 
 ## License
 

@@ -81,8 +81,34 @@ void aes_encrypt_128(const uint8_t* roundkeys, const uint8_t* plaintext, uint8_t
  */
 void aes_decrypt_128(const uint8_t* roundkeys, const uint8_t* ciphertext, uint8_t* plaintext);
 
-void impEncrypt();
-void impDecrypt();
+/*
+ *
+ * @purpose:        File and Text Manipulation
+ *
+ */
+char* padPlainText(const char* plain_text);
+int impEncrypt();
+int impDecrypt();
+
+/*
+ *
+ * @purpose:        File operation (read, write)
+ * 
+ */
+char* readFile(const char* fileName);
+int readFileDataByte(const char* filename, uint8_t* buffer, size_t buffer_size);
+int writeFile(const char* fileName, const void* data, size_t dataSize);
+int writeFileByte(const char* filename, uint8_t* data, size_t data_size);
+void listFilesInDirectory(const char* directory);
+int fileExists(const char* filename);
+
+/*
+ *
+ * @purpose:        UI or Navigation
+ *
+ */
+void mainMenu();
+void backOrExit();
 
 #endif
 

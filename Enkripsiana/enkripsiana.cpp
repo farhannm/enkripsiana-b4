@@ -1,6 +1,10 @@
+#pragma warning(disable : 4996)
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
 #include "enkripsiana.h"
+#include "dirent.h"
+
 
 /**
  * https://en.wikipedia.org/wiki/Finite_field_arithmetic
@@ -234,10 +238,477 @@ void aes_decrypt_128(const uint8_t* roundkeys, const uint8_t* ciphertext, uint8_
 
 }
 
-void impEncrypt() {
+char* readFile(const char* fileName) {
+    FILE* file = fopen(fileName, "r");
+    if (!file) {
+        printf("[ERROR] Gagal membuka file '%s' untuk dibaca.\n", fileName);
+        return NULL;
+    }
 
+    fseek(file, 0, SEEK_END);
+    long fileSize = ftell(file);
+    fseek(file, 0, SEEK_SET);
+
+    char* buffer = (char*)malloc(fileSize + 1);
+    if (!buffer) {
+        printf("[ERROR] Gagal mengalokasikan memori untuk file '%s'.\n", fileName);
+        fclose(file);
+        return NULL;
+    }
+
+    size_t elementsRead = fread(buffer, fileSize, 1, file);
+    fclose(file);
+
+    if (elementsRead != 1) {
+        printf("[ERROR] Gagal membaca file '%s'.\n", fileName);
+        free(buffer);
+        return NULL;
+    }
+
+    buffer[fileSize] = '\0';
+    return buffer;
 }
 
-void impDecrypt() {
+int readFileDataByte(const char* filename, uint8_t* buffer, size_t buffer_size) {
+    FILE* file = fopen(filename, "rb"); // Buka file dalam mode binary read
 
+    if (!file) {
+        printf("[ERROR] Gagal membuka file '%s' untuk dibaca.\n", filename);
+        return 0; // Gagal membuka file
+    }
+
+    // Membaca data dari file ke dalam buffer
+    size_t bytes_read = fread(buffer, 1, buffer_size, file);
+
+    fclose(file); // Tutup file
+
+    // Periksa apakah jumlah byte yang dibaca sesuai dengan buffer_size
+    if (bytes_read != buffer_size) {
+        printf("[ERROR] Gagal membaca data dari file '%s'.\n", filename);
+        return 0; // Gagal membaca data dari file
+    }
+
+    return 1; // Berhasil membaca data dari file
+}
+
+// Function to write the contents of a buffer to a file
+int writeFile(const char* fileName, const void* data, size_t dataSize) {
+    FILE* file = fopen(fileName, "w");
+    if (!file) {
+        printf("[ERROR] Gagal membuka file '%s' untuk ditulis.\n", fileName);
+        return 0;
+    }
+
+    size_t elementsWritten = fwrite(data, dataSize, 1, file);
+    fclose(file);
+
+    if (elementsWritten != 1) {
+        printf("[ERROR] Gagal menulis ke file '%s'.\n", fileName);
+        return 0;
+    }
+
+    return 1;
+}
+
+// Fungsi untuk menulis data ke dalam file
+int writeFileByte(const char* filename, uint8_t* data, size_t data_size) {
+    FILE* file = fopen(filename, "wb"); // Buka file dalam mode binary write
+
+    if (!file) {
+        printf("[ERROR] Gagal membuka file '%s' untuk ditulis.\n", filename);
+        return 0; // Gagal membuka file
+    }
+
+    // Menulis data ke dalam file
+    size_t bytes_written = fwrite(data, 1, data_size, file);
+
+    fclose(file); // Tutup file
+
+    // Periksa apakah jumlah byte yang ditulis sesuai dengan data_size
+    if (bytes_written != data_size) {
+        printf("[ERROR] Gagal menulis data ke dalam file '%s'.\n", filename);
+        return 0; // Gagal menulis data ke dalam file
+    }
+
+    return 1; // Berhasil menulis data ke dalam file
+}
+
+int fileExists(const char* filename) {
+    FILE* file = fopen(filename, "r");
+    if (file) {
+        fclose(file);
+        return 1;
+    }
+    return 0;
+}
+
+void listFilesInDirectory(const char* directory) {
+    DIR* dir;
+    struct dirent* ent;
+    int fileCount = 0;
+    char fileList[100][256]; // Array untuk menyimpan nama file (maksimum 100 file, masing-masing dengan panjang nama file maksimum 256 karakter)
+
+    if ((dir = opendir(directory)) != NULL) {
+        printf("[INFO] Daftar file di direktori : \n", directory);
+        while ((ent = readdir(dir)) != NULL) {
+            if (ent->d_type == DT_REG) { // Hanya proses file reguler
+                strcpy(fileList[fileCount], ent->d_name); // Menyalin nama file ke dalam array fileList
+                fileCount++;
+            }
+        }
+        closedir(dir);
+
+        // Menampilkan daftar file beserta nomor urutannya
+        for (int i = 0; i < fileCount; i++) {
+            printf("%d. %s\n", i + 1, fileList[i]);
+        }
+    }
+    else {
+        perror("[!] Gagal membuka direktori.");
+    }
+}
+
+char* padPlainText(const char* plain_text) {
+    // Padding jika panjang plaintext kurang dari 16 karakter
+    int padding_len = AES_BLOCK_SIZE - strlen(plain_text);
+    char* padded_text = (char*)malloc(AES_BLOCK_SIZE + 1); // 1 extra for null-terminator
+    if (!padded_text) {
+        printf("[ERROR] Memory allocation failed.\n");
+        return NULL;
+    }
+    strcpy(padded_text, plain_text);
+    for (int i = 0; i < padding_len; ++i) {
+        strcat(padded_text, " ");
+    }
+    return padded_text;
+}
+
+int impEncrypt() {
+    const char* inputDirectory = "Crypto"; // Membaca direktori
+    char key[17]; // 16 karakter untuk kunci AES dan 1 karakter untuk null-terminator
+
+    uint8_t roundkeys[AES_ROUND_KEY_SIZE]; // Key schedule
+
+    uint8_t ciphertext[AES_BLOCK_SIZE]; // Output
+
+    // Memeriksa apakah direktori "Crypto" memiliki file
+    DIR* dir = opendir(inputDirectory);
+    if (!dir) {
+        printf("[ERROR] Direktori 'Crypto' tidak ditemukan atau tidak dapat diakses.\n");
+        return 1;
+    }
+
+    struct dirent* entry;
+    int fileCount = 0;
+
+    // Menghitung jumlah file dalam direktori "Crypto"
+    printf("Daftar file yang tersedia untuk dienkripsi:\n");
+    while ((entry = readdir(dir)) != NULL) {
+        if (entry->d_type == DT_REG) {
+            printf("%d. %s\n", ++fileCount, entry->d_name);
+        }
+    }
+
+    closedir(dir);
+
+    // Jika tidak ada file dalam direktori "Crypto", berikan pesan dan keluar
+    if (fileCount == 0) {
+        printf("[INFO] Tidak ada file yang ditemukan dalam direktori 'Crypto'.\n");
+        return 1;
+    }
+
+    // Meminta pengguna untuk memasukkan nomor indeks file
+    int fileIndex;
+    do {
+        printf("\n[INPUT] Masukkan nomor indeks file yang akan dienkripsi : ");
+        if (scanf("%d", &fileIndex) != 1) {
+            printf("[ERROR] Masukkan nomor indeks yang valid.\n");
+            while (getchar() != '\n'); // Membersihkan input buffer
+        }
+        else if (fileIndex < 1 || fileIndex > fileCount) {
+            printf("[ERROR] Nomor indeks tidak valid.\n");
+        }
+        else {
+            break; // Keluar dari loop jika nomor indeks valid
+        }
+    } while (1);
+
+    // Mencari nama file yang sesuai dengan nomor indeks
+    dir = opendir(inputDirectory);
+    int currentIndex = 0;
+    char inputFileName[256];
+    while ((entry = readdir(dir)) != NULL) {
+        if (entry->d_type == DT_REG) {
+            currentIndex++;
+            if (currentIndex == fileIndex) {
+                strcpy(inputFileName, entry->d_name);
+                break;
+            }
+        }
+    }
+    closedir(dir);
+
+    char fullInputPath[512];
+    snprintf(fullInputPath, sizeof(fullInputPath), "%s/%s", inputDirectory, inputFileName);
+
+    // Baca plain text dari file yang dipilih
+    char* plain_text = readFile(fullInputPath);
+    if (!plain_text) {
+        printf("[ERROR] Gagal membaca plain text dari file '%s'.\n", fullInputPath);
+        return 1;
+    }
+
+    // Padding plain text
+    char* padded_text = padPlainText(plain_text);
+    if (!padded_text) {
+        free(plain_text);
+        return 1;
+    }
+
+    // Input key
+    while (1) {
+        printf("[INPUT] Masukkan kunci (perlu 16 karakter): ");
+        fgets(key, sizeof(key), stdin);
+        if (strlen(key) == 16) {
+            break; // Keluar dari loop jika panjang kunci sesuai
+        }
+        else {
+            printf("\n[WARNING] Kunci harus memiliki panjang 16 karakter\n");
+        }
+    }
+
+    aes_key_schedule_128((uint8_t*)key, roundkeys);
+
+    // Encryption
+    aes_encrypt_128(roundkeys, (uint8_t*)padded_text, ciphertext);
+
+    // Output cipher text
+    printf("\nCipher text:\n");
+    for (int i = 0; i < AES_BLOCK_SIZE; i++) {
+        printf("%c", ciphertext[i]);
+    }
+    printf("\n");
+
+    // Simpan ciphertext ke dalam file
+    char outputFileName[512];
+    snprintf(outputFileName, sizeof(outputFileName), "%s/encrypted_%s", inputDirectory, inputFileName);
+    if (!writeFile(outputFileName, ciphertext, AES_BLOCK_SIZE)) {
+        printf("[ERROR] Gagal menyimpan ciphertext ke dalam file '%s'.\n", outputFileName);
+        free(plain_text);
+        free(padded_text);
+        return 1;
+    }
+
+    remove(fullInputPath);
+
+    printf("[SUCCESS] File berhasil dienkripsi. Enkripsi tersimpan di '%s'\n", outputFileName);
+
+    free(plain_text);
+    free(padded_text);
+
+    backOrExit();
+
+    return 0;
+}
+
+int impDecrypt() {
+    const char* inputDirectory = "Crypto"; // Membaca direktori
+    char key[17]; // 16 karakter untuk kunci AES dan 1 karakter untuk null-terminator
+
+    uint8_t roundkeys[AES_ROUND_KEY_SIZE]; // Key schedule
+
+    // Memeriksa apakah direktori "Crypto" memiliki file
+    DIR* dir = opendir(inputDirectory);
+    if (!dir) {
+        printf("[ERROR] Direktori 'Crypto' tidak ditemukan atau tidak dapat diakses.\n");
+        return 1;
+    }
+
+    struct dirent* entry;
+    int fileCount = 0;
+
+    // Menghitung jumlah file dalam direktori "Crypto"
+    printf("Daftar file yang tersedia untuk didekripsi:\n");
+    while ((entry = readdir(dir)) != NULL) {
+        if (entry->d_type == DT_REG) {
+            printf("%d. %s\n", ++fileCount, entry->d_name);
+        }
+    }
+
+    closedir(dir);
+
+    // Jika tidak ada file dalam direktori "Crypto", berikan pesan dan keluar
+    if (fileCount == 0) {
+        printf("[INFO] Tidak ada file yang ditemukan dalam direktori 'Crypto'.\n");
+        return 1;
+    }
+
+    // Meminta pengguna untuk memasukkan nomor indeks file
+    int fileIndex;
+    do {
+        printf("\n[INPUT] Masukkan nomor indeks file yang akan didekripsi : ");
+        if (scanf("%d", &fileIndex) != 1) {
+            printf("[ERROR] Masukkan nomor indeks yang valid.\n");
+            while (getchar() != '\n'); // Membersihkan input buffer
+        }
+        else if (fileIndex < 1 || fileIndex > fileCount) {
+            printf("[ERROR] Nomor indeks tidak valid.\n");
+        }
+        else {
+            break; // Keluar dari loop jika nomor indeks valid
+        }
+    } while (1);
+
+    // Mencari nama file yang sesuai dengan nomor indeks
+    dir = opendir(inputDirectory);
+    int currentIndex = 0;
+    char inputFileName[256];
+    while ((entry = readdir(dir)) != NULL) {
+        if (entry->d_type == DT_REG) {
+            currentIndex++;
+            if (currentIndex == fileIndex) {
+                strcpy(inputFileName, entry->d_name);
+                break;
+            }
+        }
+    }
+    closedir(dir);
+
+    char fullInputPath[512];
+    snprintf(fullInputPath, sizeof(fullInputPath), "%s/%s", inputDirectory, inputFileName);
+
+    // Baca ciphertext dari file yang dipilih
+    uint8_t ciphertext[AES_BLOCK_SIZE];
+    if (!readFileDataByte(fullInputPath, ciphertext, AES_BLOCK_SIZE)) {
+        printf("[ERROR] Gagal membaca ciphertext dari file '%s'.\n", fullInputPath);
+        return 1;
+    }
+
+    // Input key
+    while (1) {
+        printf("[INPUT] Masukkan kunci (perlu 16 karakter): ");
+        fgets(key, sizeof(key), stdin);
+        if (strlen(key) == 16) {
+            break; // Keluar dari loop jika panjang kunci sesuai
+        }
+        else {
+            printf("\n[WARNING] Kunci harus memiliki panjang 16 karakter\n");
+        }
+    }
+
+    aes_key_schedule_128((uint8_t*)key, roundkeys);
+
+    // Decryption
+    uint8_t decrypted_text[AES_BLOCK_SIZE]; // Output
+    aes_decrypt_128(roundkeys, ciphertext, decrypted_text);
+
+    // Output decrypted text
+    printf("\nDecrypted text:\n");
+    for (int i = 0; i < AES_BLOCK_SIZE; i++) {
+        printf("%c", decrypted_text[i]);
+    }
+    printf("\n");
+
+    // Simpan teks yang telah terdekripsi ke dalam file
+    char outputFileName[512];
+    char* baseName = strrchr(inputFileName, '/');
+    if (baseName) {
+        baseName++;
+    }
+    else {
+        baseName = inputFileName;
+    }
+    snprintf(outputFileName, sizeof(outputFileName), "%s/decrypted_%s", inputDirectory, baseName);
+    if (!writeFileByte(outputFileName, decrypted_text, AES_BLOCK_SIZE)) {
+        return 1; // Gagal menyimpan teks terdekripsi ke dalam file
+    }
+
+    remove(fullInputPath);
+
+    printf("[SUCCESS] Teks terdekripsi telah disimpan di '%s'\n", outputFileName);
+
+    backOrExit();
+
+    return 0;
+}
+
+void backOrExit() {
+    int opsi, encrypt;
+    bool isValid;
+
+    do {
+        printf("\n[INFO]Proses selesai\n\n");
+        printf("(1). Kembali ke menu utama \n");
+        printf("(2). Keluar dari aplikasi \n");
+        printf("\n[>>] Masukkan pilihan (1/2) : ");
+        scanf("%d", &opsi);
+
+        switch (opsi) {
+        case 1:
+            system("cls");
+
+            mainMenu();
+            isValid = true;
+            break;
+        case 2:
+            printf("\nKeluar dari aplikasi...\n");
+            exit(0);
+            break;
+        default:
+            printf("\nInput tidak valid. Masukkan angka antara 1 hingga 3.\n");
+            isValid = false;
+            break;
+
+        }
+
+    } while (!isValid);
+}
+
+void mainMenu() {
+    int opsi, encrypt, decrypt;
+    bool isValid;
+
+    printf("+-------------------------------+\n");
+    printf("|     E N K R I P S I A N A     |\n");
+    printf("+-------------------------------+\n");
+
+    do {
+        printf("\nPilih aksi yang akan dilakukan : \n");
+        printf("(1). Enkripsi \n");
+        printf("(2). Deskripsi\n");
+        printf("(3). Keluar dari aplikasi \n");
+        printf("\n[>>] Masukkan pilihan (1-3) : ");
+        scanf("%d", &opsi);
+
+        switch (opsi) {
+        case 1:
+            system("cls");
+            printf("+----------------------------------+\n");
+            printf("|              Enkripsi            |\n");
+            printf("+----------------------------------+\n\n");
+
+            encrypt = impEncrypt();
+            isValid = true;
+            break;
+        case 2:
+            system("cls");
+            printf("+--------------------------------+\n");
+            printf("|            Deskripsi           |\n");
+            printf("+--------------------------------+\n");
+
+            decrypt = impDecrypt();
+            isValid = true;
+            break;
+        case 3:
+            printf("\nKeluar dari aplikasi...\n");
+            exit(0);
+            break;
+        default:
+            printf("\nInput tidak valid. Masukkan angka antara 1 hingga 3.\n");
+            isValid = false;
+            break;
+
+        }
+
+    } while (!isValid);
 }

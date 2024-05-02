@@ -135,13 +135,7 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="dirent.h" />
     <ClInclude Include="enkripsiana.h" />
-    <ClInclude Include="hasbi.h" />
-    <ClInclude Include="farhan.h" />
-    <ClInclude Include="indah.h" />
-    <ClInclude Include="farel.h" />
-    <ClInclude Include="febi.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

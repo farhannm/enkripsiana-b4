@@ -26,23 +26,5 @@
     <ClInclude Include="enkripsiana.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="dirent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="hasbi.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="farhan.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="indah.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="farel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="febi.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>

@@ -482,6 +482,7 @@ int impEncrypt() {
     // Encryption
     aes_encrypt_128(roundkeys, (uint8_t*)padded_text, ciphertext);
 
+
     // Output cipher text
     printf("\nCipher text:\n");
     for (int i = 0; i < AES_BLOCK_SIZE; i++) {
@@ -663,6 +664,107 @@ void backOrExit() {
 
     } while (!isValid);
 }
+
+// Fungsi untuk membuat node baru
+//Node* createNode(char info[]) {
+//    Node* newNode = (Node*)malloc(sizeof(Node));
+//    if (newNode == NULL) {
+//        printf("Memory allocation failed\n");
+//        exit(1);
+//    }
+//    newNode->info = strdup(info);
+//    newNode->next = NULL;
+//    newNode->prev = NULL;
+//    return newNode;
+//}
+//
+//// Fungsi untuk menyisipkan huruf acak setelah setiap karakter
+//void InsertHurufacak(Node* head) {
+//    Node* current = head;
+//    srand(time(NULL)); // Seed untuk fungsi random
+//
+//    while (current != NULL) {
+//        Node* newNode = createNode("");
+//        newNode->info[0] = 'A' + rand() % 26; // Menyisipkan huruf acak
+//        Node* temp = current->next; // Simpan node berikutnya sementara
+//        current->next = newNode; // Sisipkan node baru setelah node saat ini
+//        newNode->prev = current;
+//        newNode->next = temp;
+//        if (temp != NULL) {
+//            temp->prev = newNode;
+//        }
+//        current = temp; // Lanjut ke node berikutnya
+//    }
+//}
+//
+//// Fungsi untuk mencetak isi linked list
+//void printList(Node* head) {
+//    Node* current = head;
+//    while (current != NULL) {
+//        printf("%c", current->info[0]);
+//        current = current->next;
+//    }
+//    printf("\n");
+//}
+//
+//// Fungsi untuk membebaskan memori yang dialokasikan untuk linked list
+//void freeList(Node* head) {
+//    Node* current = head;
+//    while (current != NULL) {
+//        Node* temp = current;
+//        current = current->next;
+//        free(temp->info);
+//        free(temp);
+//    }
+//}
+//
+//void tambahsisipan(char input[]) {
+//    Node* head = createNode(&input[0]);
+//    Node* current = head;
+//
+//    // Membuat linked list dari string input
+//    for (int i = 1; i < strlen(input); i++) {
+//        Node* newNode = createNode(&input[i]);
+//        current->next = newNode;
+//        newNode->prev = current;
+//        current = newNode;
+//    }
+//
+//    printf("Sebelum: ");
+//    printList(head);
+//
+//    InsertHurufAcak(head); // Menyisipkan huruf acak
+//
+//    printf("Sesudah: ");
+//    printList(head);
+//
+//    freeList(head); // Membebaskan memori
+//}
+//
+//// Fungsi untuk menghapus sisipan huruf acak pada string input
+//void hapussisipan(char input[]) {
+//    Node* head = createNode(&input[0]);
+//    Node* current = head;
+//
+//    // Membuat linked list dari string input
+//    for (int i = 1; i < strlen(input); i++) {
+//        Node* newNode = createNode(&input[i]);
+//        current->next = newNode;
+//        newNode->prev = current;
+//        current = newNode;
+//    }
+//
+//    printf("Sebelum: ");
+//    printList(head);
+//
+//    HapusHurufAcak(head); // Menghapus huruf acak yang disisipkan
+//
+//    printf("Setelah menghapus huruf acak: ");
+//    printList(head);
+//
+//    freeList(head); // Membebaskan memori
+//}
+
 
 void mainMenu() {
     int opsi, encrypt, decrypt;

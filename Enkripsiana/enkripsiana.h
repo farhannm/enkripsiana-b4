@@ -10,6 +10,15 @@
 #define AES_ROUND_KEY_SIZE  176 // AES-128 has 10 rounds, and there is a AddRoundKey before first round. (10+1)x16=176.
 
 /*
+* Linked list node structure
+*/
+typedef struct Node {
+    char data;
+    struct Node* next;
+} Node;
+
+
+/*
  * Round Constants
  */
 static uint8_t RC[] = { 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36 };
@@ -125,6 +134,19 @@ int fileExists(const char* filename);
 //void tambahsisipan(char input[]);
 //// Fungsi untuk menghapus sisipan huruf acak pada string input
 //void hapussisipan(char input[]);
+
+/*
+ *
+ * @purpose:        Linked List
+ *
+ */
+Node* createNode(char data);
+void insertAfter(Node* prevNode, char data);
+void deleteAfter(Node* prevNode);
+char* insertRandomChars(const char* text);
+char* deleteRandomChars(const char* text);
+
+
 /*
  *
  * @purpose:        UI or Navigation

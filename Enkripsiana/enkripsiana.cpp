@@ -763,7 +763,83 @@ void backOrExit() {
 //    printList(head);
 //
 //    freeList(head); // Membebaskan memori
+// 
 //}
+
+Node* createNode(char data) {
+    Node* newNode = (Node*)malloc(sizeof(Node));
+    if (newNode) {
+        newNode->data = data;
+        newNode->next = NULL;
+    }
+    return newNode;
+}
+
+// Function to insert a new node after a given node
+void insertAfter(Node* prevNode, char data) {
+    if (prevNode == NULL) {
+        printf("[ERROR] Previous node cannot be NULL.\n");
+        return;
+    }
+    Node* newNode = createNode(data);
+    if (newNode) {
+        newNode->next = prevNode->next;
+        prevNode->next = newNode;
+    }
+}
+
+// Function to delete the node after the given node
+void deleteAfter(Node* prevNode) {
+    if (prevNode == NULL || prevNode->next == NULL) {
+        printf("[ERROR] Node to be deleted is NULL or the next node is NULL.\n");
+        return;
+    }
+    Node* temp = prevNode->next;
+    prevNode->next = temp->next;
+    free(temp);
+}
+
+// Function to insert random characters between each character of a string
+char* insertRandomChars(const char* text) {
+    Node* head = createNode(text[0]);
+    Node* current = head;
+    for (int i = 1; i < strlen(text); ++i) {
+        insertAfter(current, text[i]);
+        current = current->next;
+        insertAfter(current, rand() % 26 + 'a'); // Insert random character between each character
+        current = current->next;
+    }
+    // Convert linked list to string
+    char* result = (char*)malloc((2 * strlen(text) + 1) * sizeof(char));
+    current = head;
+    int index = 0;
+    while (current != NULL) {
+        result[index++] = current->data;
+        current = current->next;
+    }
+    result[index] = '\0';
+    return result;
+}
+
+// Function to delete random characters inserted during encryption
+char* deleteRandomChars(const char* text) {
+    Node* head = createNode(text[0]);
+    Node* current = head;
+    for (int i = 1; i < strlen(text); i += 2) {
+        insertAfter(current, text[i]);
+        current = current->next;
+    }
+    // Convert linked list to string
+    char* result = (char*)malloc((strlen(text) / 2 + 1) * sizeof(char));
+    current = head;
+    int index = 0;
+    while (current != NULL) {
+        result[index++] = current->data;
+        current = current->next->next;
+    }
+    result[index] = '\0';
+    return result;
+}
 
 
 void mainMenu() {

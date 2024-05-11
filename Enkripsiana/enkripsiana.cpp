@@ -2,9 +2,9 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include <ctime>
 #include "enkripsiana.h"
 #include "dirent.h"
-
 
 /**
  * https://en.wikipedia.org/wiki/Finite_field_arithmetic
@@ -333,6 +333,24 @@ int writeFileByte(const char* filename, uint8_t* data, size_t data_size) {
     return 1; // Berhasil menulis data ke dalam file
 }
 
+int writeListToFile(const char* fileName, Node* head) {
+    FILE* file = fopen(fileName, "w");
+    if (!file) {
+        printf("[ERROR] Gagal membuka file '%s' untuk ditulis.\n", fileName);
+        return 0;
+    }
+
+    Node* current = head;
+    do {
+        fwrite(&(current->data), sizeof(char), 1, file);
+        current = current->next;
+    } while (current != head);
+
+    fclose(file);
+    return 1;
+}
+
+
 int fileExists(const char* filename) {
     FILE* file = fopen(filename, "r");
     if (file) {
@@ -482,19 +500,31 @@ int impEncrypt() {
     // Encryption
     aes_encrypt_128(roundkeys, (uint8_t*)padded_text, ciphertext);
 
-
-    // Output cipher text
-    printf("\nCipher text:\n");
+    // Output cipher text sebelum pengacakan
+    printf("\nCipher text sebelum pengacakan:\n");
     for (int i = 0; i < AES_BLOCK_SIZE; i++) {
-        printf("%c", ciphertext[i]);
+        printf("%c ", ciphertext[i]);
     }
     printf("\n");
 
-    // Simpan ciphertext ke dalam file
+    // Simpan hasil enkripsi ke dalam linked list
+    Node* head = NULL;
+    for (int i = 0; i < AES_BLOCK_SIZE; i++) {
+        insertEnd(&head, ciphertext[i]);
+    }
+
+    // Shuffle linked list
+    shuffleNode(&head);
+
+    // Output cipher text setelah pengacakan
+    printf("\nCipher text setelah pengacakan:\n");
+    printList(head);
+
+    // Simpan linked list (hasil pengacakan) ke dalam file
     char outputFileName[512];
     snprintf(outputFileName, sizeof(outputFileName), "%s/encrypted_%s", inputDirectory, inputFileName);
-    if (!writeFile(outputFileName, ciphertext, AES_BLOCK_SIZE)) {
-        printf("[ERROR] Gagal menyimpan ciphertext ke dalam file '%s'.\n", outputFileName);
+    if (!writeListToFile(outputFileName, head)) {
+        printf("[ERROR] Gagal menyimpan hasil pengacakan ke dalam file '%s'.\n", outputFileName);
         free(plain_text);
         free(padded_text);
         return 1;
@@ -511,6 +541,8 @@ int impEncrypt() {
 
     return 0;
 }
+
+
 
 int impDecrypt() {
     const char* inputDirectory = "Crypto"; // Membaca direktori
@@ -599,8 +631,33 @@ int impDecrypt() {
 
     aes_key_schedule_128((uint8_t*)key, roundkeys);
 
+    // Simpan ciphertext ke dalam linked list
+    Node* head = NULL;
+    for (int i = 0; i < AES_BLOCK_SIZE; i++) {
+        insertEnd(&head, ciphertext[i]);
+    }
+
+    // Output cipher text before restoration
+    printf("\nCipher text before restoration:\n");
+    printList(head);
+    printf("\n");
+
+    // Restore original order before decryption
+    restoreOriginalOrder(&head);
+
+    // Output cipher text after restoration
+    printf("\nCipher text after restoration:\n");
+    printList(head);
+    printf("\n");
+
     // Decryption
     uint8_t decrypted_text[AES_BLOCK_SIZE]; // Output
+    Node* current = head;
+    for (int i = 0; i < AES_BLOCK_SIZE; i++) {
+        ciphertext[i] = current->data;
+        current = current->next;
+    }
+
     aes_decrypt_128(roundkeys, ciphertext, decrypted_text);
 
     // Output decrypted text
@@ -626,12 +683,14 @@ int impDecrypt() {
 
     remove(fullInputPath);
 
-    printf("[SUCCESS] Teks terdekripsi telah disimpan di '%s'\n", outputFileName);
+    printf("\n[SUCCESS] Teks terdekripsi telah disimpan di '%s'\n", outputFileName);
 
     backOrExit();
 
     return 0;
 }
+
+
 
 void backOrExit() {
     int opsi, encrypt;
@@ -664,183 +723,6 @@ void backOrExit() {
 
     } while (!isValid);
 }
-
-// Fungsi untuk membuat node baru
-//Node* createNode(char info[]) {
-//    Node* newNode = (Node*)malloc(sizeof(Node));
-//    if (newNode == NULL) {
-//        printf("Memory allocation failed\n");
-//        exit(1);
-//    }
-//    newNode->info = strdup(info);
-//    newNode->next = NULL;
-//    newNode->prev = NULL;
-//    return newNode;
-//}
-//
-//// Fungsi untuk menyisipkan huruf acak setelah setiap karakter
-//void InsertHurufacak(Node* head) {
-//    Node* current = head;
-//    srand(time(NULL)); // Seed untuk fungsi random
-//
-//    while (current != NULL) {
-//        Node* newNode = createNode("");
-//        newNode->info[0] = 'A' + rand() % 26; // Menyisipkan huruf acak
-//        Node* temp = current->next; // Simpan node berikutnya sementara
-//        current->next = newNode; // Sisipkan node baru setelah node saat ini
-//        newNode->prev = current;
-//        newNode->next = temp;
-//        if (temp != NULL) {
-//            temp->prev = newNode;
-//        }
-//        current = temp; // Lanjut ke node berikutnya
-//    }
-//}
-//
-//// Fungsi untuk mencetak isi linked list
-//void printList(Node* head) {
-//    Node* current = head;
-//    while (current != NULL) {
-//        printf("%c", current->info[0]);
-//        current = current->next;
-//    }
-//    printf("\n");
-//}
-//
-//// Fungsi untuk membebaskan memori yang dialokasikan untuk linked list
-//void freeList(Node* head) {
-//    Node* current = head;
-//    while (current != NULL) {
-//        Node* temp = current;
-//        current = current->next;
-//        free(temp->info);
-//        free(temp);
-//    }
-//}
-//
-//void tambahsisipan(char input[]) {
-//    Node* head = createNode(&input[0]);
-//    Node* current = head;
-//
-//    // Membuat linked list dari string input
-//    for (int i = 1; i < strlen(input); i++) {
-//        Node* newNode = createNode(&input[i]);
-//        current->next = newNode;
-//        newNode->prev = current;
-//        current = newNode;
-//    }
-//
-//    printf("Sebelum: ");
-//    printList(head);
-//
-//    InsertHurufAcak(head); // Menyisipkan huruf acak
-//
-//    printf("Sesudah: ");
-//    printList(head);
-//
-//    freeList(head); // Membebaskan memori
-//}
-//
-//// Fungsi untuk menghapus sisipan huruf acak pada string input
-//void hapussisipan(char input[]) {
-//    Node* head = createNode(&input[0]);
-//    Node* current = head;
-//
-//    // Membuat linked list dari string input
-//    for (int i = 1; i < strlen(input); i++) {
-//        Node* newNode = createNode(&input[i]);
-//        current->next = newNode;
-//        newNode->prev = current;
-//        current = newNode;
-//    }
-//
-//    printf("Sebelum: ");
-//    printList(head);
-//
-//    HapusHurufAcak(head); // Menghapus huruf acak yang disisipkan
-//
-//    printf("Setelah menghapus huruf acak: ");
-//    printList(head);
-//
-//    freeList(head); // Membebaskan memori
-// 
-//}
-
-Node* createNode(char data) {
-    Node* newNode = (Node*)malloc(sizeof(Node));
-    if (newNode) {
-        newNode->data = data;
-        newNode->next = NULL;
-    }
-    return newNode;
-}
-
-// Function to insert a new node after a given node
-void insertAfter(Node* prevNode, char data) {
-    if (prevNode == NULL) {
-        printf("[ERROR] Previous node cannot be NULL.\n");
-        return;
-    }
-    Node* newNode = createNode(data);
-    if (newNode) {
-        newNode->next = prevNode->next;
-        prevNode->next = newNode;
-    }
-}
-
-// Function to delete the node after the given node
-void deleteAfter(Node* prevNode) {
-    if (prevNode == NULL || prevNode->next == NULL) {
-        printf("[ERROR] Node to be deleted is NULL or the next node is NULL.\n");
-        return;
-    }
-    Node* temp = prevNode->next;
-    prevNode->next = temp->next;
-    free(temp);
-}
-
-// Function to insert random characters between each character of a string
-char* insertRandomChars(const char* text) {
-    Node* head = createNode(text[0]);
-    Node* current = head;
-    for (int i = 1; i < strlen(text); ++i) {
-        insertAfter(current, text[i]);
-        current = current->next;
-        insertAfter(current, rand() % 26 + 'a'); // Insert random character between each character
-        current = current->next;
-    }
-    // Convert linked list to string
-    char* result = (char*)malloc((2 * strlen(text) + 1) * sizeof(char));
-    current = head;
-    int index = 0;
-    while (current != NULL) {
-        result[index++] = current->data;
-        current = current->next;
-    }
-    result[index] = '\0';
-    return result;
-}
-
-// Function to delete random characters inserted during encryption
-char* deleteRandomChars(const char* text) {
-    Node* head = createNode(text[0]);
-    Node* current = head;
-    for (int i = 1; i < strlen(text); i += 2) {
-        insertAfter(current, text[i]);
-        current = current->next;
-    }
-    // Convert linked list to string
-    char* result = (char*)malloc((strlen(text) / 2 + 1) * sizeof(char));
-    current = head;
-    int index = 0;
-    while (current != NULL) {
-        result[index++] = current->data;
-        current = current->next->next;
-    }
-    result[index] = '\0';
-    return result;
-}
-
 
 void mainMenu() {
     int opsi, encrypt, decrypt;
@@ -889,4 +771,107 @@ void mainMenu() {
         }
 
     } while (!isValid);
+}
+
+// Function to create a new node
+Node* createNode(char data) {
+    Node* newNode = (Node*)malloc(sizeof(Node));
+    if (newNode == NULL) {
+        printf("Memory allocation failed\n");
+        exit(1);
+    }
+    newNode->data = data;
+    newNode->next = NULL;
+    newNode->prev = NULL;
+    return newNode;
+}
+
+// Function to insert a node at the end of the list
+void insertEnd(Node** head, char data) {
+    Node* newNode = createNode(data);
+    if (*head == NULL) {
+        *head = newNode;
+        (*head)->next = *head;
+        (*head)->prev = *head;
+    }
+    else {
+        Node* last = (*head)->prev;
+        last->next = newNode;
+        newNode->prev = last;
+        newNode->next = *head;
+        (*head)->prev = newNode;
+    }
+}
+
+// Function to delete a node from the list
+void deleteNode(Node** head, Node* delNode) {
+    if (*head == NULL || delNode == NULL) return;
+
+    if (*head == delNode) {
+        *head = (*head)->next;
+    }
+
+    if (delNode->next != NULL) {
+        delNode->next->prev = delNode->prev;
+    }
+
+    if (delNode->prev != NULL) {
+        delNode->prev->next = delNode->next;
+    }
+
+    free(delNode);
+}
+
+// Function to shuffle the list using Fisher-Yates algorithm
+void shuffleNode(Node** head) {
+    if (*head == NULL || (*head)->next == *head) return;
+
+    Node* current = *head;
+    int length = 0;
+
+    // Counting the number of elements in the list
+    do {
+        length++;
+        current = current->next;
+    } while (current != *head);
+
+    // Perform right shift shuffle
+    current = *head;
+    for (int i = 0; i < length - 1; i++) {
+        char temp = current->data;
+        current->data = current->prev->data;
+        current->prev->data = temp;
+        current = current->next;
+    }
+}
+
+// Function to restore the original order of the list
+void restoreOriginalOrder(Node** head) {
+    if (*head == NULL || (*head)->next == *head) return;
+
+    Node* current = (*head)->prev;
+    do {
+        Node* temp = current->next;
+        current->next = current->prev;
+        current->prev = temp;
+        current = current->next;
+    } while (current != (*head)->prev);
+
+    // Move head pointer to the original head node
+    *head = (*head)->prev;
+}
+
+
+// Function to print the circular doubly linked list
+void printList(Node* head) {
+    if (head == NULL) return;
+
+    Node* current = head;
+
+    do {
+        printf("%c ", current->data);
+        current = current->next;
+    } while (current != head);
+
+    printf("\n");
 }

@@ -15,6 +15,7 @@
 typedef struct Node {
     char data;
     struct Node* next;
+    struct Node* prev;
 } Node;
 
 
@@ -66,14 +67,6 @@ static uint8_t INV_SBOX[256] = {
     0x17, 0x2b, 0x04, 0x7e, 0xba, 0x77, 0xd6, 0x26, 0xe1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0c, 0x7d };
 
 
-//typedef char* infotype;
-//typedef struct tNode* address;
-//typedef struct tNode {
-//    infotype info;
-//    address next;
-//    address prev;
-//} Node;
-
 /**
  * @purpose:            Key schedule for AES-128
  * @par[in]key:         16 bytes of master keys
@@ -120,31 +113,17 @@ int writeFileByte(const char* filename, uint8_t* data, size_t data_size);
 void listFilesInDirectory(const char* directory);
 int fileExists(const char* filename);
 
-//Node* createNode(char info[]);
-//// Fungsi untuk menyisipkan huruf acak setelah setiap karakter
-//void InsertHurufAcak(Node* head);
-//
-//void HapusHurufAcak(Node* head);
-//
-//// Fungsi untuk mencetak isi linked list
-//void printList(Node* head);
-//// Fungsi untuk membebaskan memori yang dialokasikan untuk linked list
-//void freeList(Node* head);
-//// Fungsi untuk menambahkan sisipan huruf acak pada string input
-//void tambahsisipan(char input[]);
-//// Fungsi untuk menghapus sisipan huruf acak pada string input
-//void hapussisipan(char input[]);
-
 /*
  *
  * @purpose:        Linked List
  *
  */
 Node* createNode(char data);
-void insertAfter(Node* prevNode, char data);
-void deleteAfter(Node* prevNode);
-char* insertRandomChars(const char* text);
-char* deleteRandomChars(const char* text);
+void insertEnd(Node** head, char data);
+void deleteNode(Node** head, Node* delNode);
+void shuffleNode(Node** head);
+void restoreOriginalOrder(Node** head);
+void printList(Node* head);
 
 
 /*

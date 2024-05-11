@@ -402,40 +402,48 @@ char* padPlainText(const char* plain_text) {
 }
 
 int impEncrypt() {
-    const char* inputDirectory = "Crypto"; // Membaca direktori
+    const char* inputDirectory = "Plain"; // Input Dir
+    const char* outputDirectory = "Encrypted"; // Output Dir
     char key[17]; // 16 karakter untuk kunci AES dan 1 karakter untuk null-terminator
 
     uint8_t roundkeys[AES_ROUND_KEY_SIZE]; // Key schedule
 
     uint8_t ciphertext[AES_BLOCK_SIZE]; // Output
 
-    // Memeriksa apakah direktori "Crypto" memiliki file
     DIR* dir = opendir(inputDirectory);
     if (!dir) {
-        printf("[ERROR] Direktori 'Crypto' tidak ditemukan atau tidak dapat diakses.\n");
+        printf("[ERROR] Direktori tidak ditemukan atau tidak dapat diakses.\n");
         return 1;
     }
 
     struct dirent* entry;
     int fileCount = 0;
 
-    // Menghitung jumlah file dalam direktori "Crypto"
-    printf("Daftar file yang tersedia untuk dienkripsi:\n");
+    // Menghitung jumlah file dalam direktori "Plain"
     while ((entry = readdir(dir)) != NULL) {
         if (entry->d_type == DT_REG) {
-            printf("%d. %s\n", ++fileCount, entry->d_name);
+            fileCount++;
         }
     }
 
-    closedir(dir);
-
-    // Jika tidak ada file dalam direktori "Crypto", berikan pesan dan keluar
+    // Jika tidak ada file dalam direktori "Plain", berikan pesan dan keluar
     if (fileCount == 0) {
-        printf("[INFO] Tidak ada file yang ditemukan dalam direktori 'Crypto'.\n");
-        return 1;
+        printf("[INFO] Tidak ada file yang ditemukan dalam direktori.\n");
+        closedir(dir);
+        backOrExit();
     }
 
-    // Meminta pengguna untuk memasukkan nomor indeks file
+    // Meminta pengguna untuk memilih file yang akan dienkripsi
+    printf("Daftar file yang tersedia untuk dienkripsi:\n");
+    rewinddir(dir); // Reset directory pointer
+    int currentFileIndex = 0;
+    while ((entry = readdir(dir)) != NULL) {
+        if (entry->d_type == DT_REG) {
+            printf("%d. %s\n", ++currentFileIndex, entry->d_name);
+        }
+    }
+    closedir(dir);
+
     int fileIndex;
     do {
         printf("\n[INPUT] Masukkan nomor indeks file yang akan dienkripsi : ");
@@ -522,7 +530,7 @@ int impEncrypt() {
 
     // Simpan linked list (hasil pengacakan) ke dalam file
     char outputFileName[512];
-    snprintf(outputFileName, sizeof(outputFileName), "%s/encrypted_%s", inputDirectory, inputFileName);
+    snprintf(outputFileName, sizeof(outputFileName), "%s/encrypted_%s", outputDirectory, inputFileName);
     if (!writeListToFile(outputFileName, head)) {
         printf("[ERROR] Gagal menyimpan hasil pengacakan ke dalam file '%s'.\n", outputFileName);
         free(plain_text);
@@ -545,35 +553,47 @@ int impEncrypt() {
 
 
 int impDecrypt() {
-    const char* inputDirectory = "Crypto"; // Membaca direktori
+    const char* inputDirectory = "Encrypted"; // Input Dir
+    const char* outputDirectory = "Decrypted"; // Output Dir
     char key[17]; // 16 karakter untuk kunci AES dan 1 karakter untuk null-terminator
 
     uint8_t roundkeys[AES_ROUND_KEY_SIZE]; // Key schedule
 
-    // Memeriksa apakah direktori "Crypto" memiliki file
+    // Memeriksa apakah direktori "Encrypted" memiliki file
     DIR* dir = opendir(inputDirectory);
     if (!dir) {
-        printf("[ERROR] Direktori 'Crypto' tidak ditemukan atau tidak dapat diakses.\n");
+        printf("[ERROR] Direktori tidak ditemukan atau tidak dapat diakses.\n");
         return 1;
     }
 
     struct dirent* entry;
     int fileCount = 0;
 
-    // Menghitung jumlah file dalam direktori "Crypto"
-    printf("Daftar file yang tersedia untuk didekripsi:\n");
+    // Menghitung jumlah file dalam direktori "Encrypted"
     while ((entry = readdir(dir)) != NULL) {
         if (entry->d_type == DT_REG) {
-            printf("%d. %s\n", ++fileCount, entry->d_name);
+            fileCount++;
         }
     }
 
-    closedir(dir);
-
-    // Jika tidak ada file dalam direktori "Crypto", berikan pesan dan keluar
+    // Jika tidak ada file dalam direktori "Encrypted", berikan pesan dan keluar
     if (fileCount == 0) {
-        printf("[INFO] Tidak ada file yang ditemukan dalam direktori 'Crypto'.\n");
-        return 1;
+        printf("\n[INFO] Tidak ada file yang ditemukan dalam direktori.\n");
+        closedir(dir);
+        backOrExit();
+    }
+    else {
+        // Menghitung jumlah file dalam direktori "Encrypted"
+        printf("Daftar file yang tersedia untuk didekripsi:\n");
+        rewinddir(dir); // Reset directory pointer
+        int currentFileIndex = 0;
+        while ((entry = readdir(dir)) != NULL) {
+            if (entry->d_type == DT_REG) {
+                printf("%d. %s\n", ++currentFileIndex, entry->d_name);
+            }
+        }
+
+        closedir(dir);
     }
 
     // Meminta pengguna untuk memasukkan nomor indeks file
@@ -612,10 +632,13 @@ int impDecrypt() {
 
     // Baca ciphertext dari file yang dipilih
     uint8_t ciphertext[AES_BLOCK_SIZE];
-    if (!readFileDataByte(fullInputPath, ciphertext, AES_BLOCK_SIZE)) {
+    FILE* inputFile = fopen(fullInputPath, "rb");
+    if (!inputFile) {
         printf("[ERROR] Gagal membaca ciphertext dari file '%s'.\n", fullInputPath);
         return 1;
     }
+    fread(ciphertext, 1, AES_BLOCK_SIZE, inputFile);
+    fclose(inputFile);
 
     // Input key
     while (1) {
@@ -676,10 +699,14 @@ int impDecrypt() {
     else {
         baseName = inputFileName;
     }
-    snprintf(outputFileName, sizeof(outputFileName), "%s/decrypted_%s", inputDirectory, baseName);
-    if (!writeFileByte(outputFileName, decrypted_text, AES_BLOCK_SIZE)) {
+    snprintf(outputFileName, sizeof(outputFileName), "%s/decrypted_%s", outputDirectory, baseName);
+    FILE* outputFile = fopen(outputFileName, "wb");
+    if (!outputFile) {
+        printf("[ERROR] Gagal menyimpan teks terdekripsi ke dalam file '%s'.\n", outputFileName);
         return 1; // Gagal menyimpan teks terdekripsi ke dalam file
     }
+    fwrite(decrypted_text, 1, AES_BLOCK_SIZE, outputFile);
+    fclose(outputFile);
 
     remove(fullInputPath);
 
@@ -689,6 +716,7 @@ int impDecrypt() {
 
     return 0;
 }
+
 
 
 

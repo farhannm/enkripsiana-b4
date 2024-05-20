@@ -524,6 +524,9 @@ int impEncrypt() {
     // Shuffle linked list
     shuffleNode(&head);
 
+    // Menyisipkan karakter diantara setiap karakter yang dienkripsi
+    insertAfterEachNode(&head, 'X');
+
     // Output cipher text setelah pengacakan
     printf("\nCipher text setelah pengacakan:\n");
     printList(head);
@@ -664,6 +667,9 @@ int impDecrypt() {
     printf("\nCipher text before restoration:\n");
     printList(head);
     printf("\n");
+
+    // Remove karakter yang disisipkan
+    removeEverySecondNode(&head);
 
     // Restore original order before decryption
     restoreOriginalOrder(&head);
@@ -848,6 +854,37 @@ void deleteNode(Node** head, Node* delNode) {
     }
 
     free(delNode);
+}
+
+// Function to insert a character after each node in the list
+void insertAfterEachNode(Node** head, char data) {
+    if (*head == NULL) return;
+
+    Node* current = *head;
+
+    do {
+        Node* newNode = createNode(data);
+        newNode->next = current->next;
+        newNode->prev = current;
+        current->next->prev = newNode;
+        current->next = newNode;
+        current = newNode->next;
+    } while (current != *head);
+}
+
+// Function to remove every second node in the list
+void removeEverySecondNode(Node** head) {
+    if (*head == NULL || (*head)->next == *head) return;
+
+    Node* current = *head;
+
+    do {
+        Node* nodeToRemove = current->next;
+        current->next = nodeToRemove->next;
+        nodeToRemove->next->prev = current;
+        free(nodeToRemove);
+        current = current->next;
+    } while (current != *head);
 }
 
 // Function to shuffle the list using Fisher-Yates algorithm

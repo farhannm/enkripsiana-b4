@@ -121,6 +121,8 @@ int fileExists(const char* filename);
 Node* createNode(char data);
 void insertEnd(Node** head, char data);
 void deleteNode(Node** head, Node* delNode);
+void insertAfterEachNode(Node** head, char data);
+void removeEverySecondNode(Node** head);
 void shuffleNode(Node** head);
 void restoreOriginalOrder(Node** head);
 void printList(Node* head);

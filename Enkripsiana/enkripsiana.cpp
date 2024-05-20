@@ -525,7 +525,7 @@ int impEncrypt() {
     shuffleNode(&head);
 
     // Menyisipkan karakter diantara setiap karakter yang dienkripsi
-    insertAfterEachNode(&head, 'X');
+    insertAfterEachNode(&head, ('A' + rand() % 26));
 
     // Output cipher text setelah pengacakan
     printf("\nCipher text setelah pengacakan:\n");
@@ -864,11 +864,14 @@ void insertAfterEachNode(Node** head, char data) {
 
     do {
         Node* newNode = createNode(data);
-        newNode->next = current->next;
+        Node* temp = current->next; // Simpan node berikutnya sementara
+        current->next = newNode; // Sisipkan node baru setelah node saat ini
         newNode->prev = current;
-        current->next->prev = newNode;
-        current->next = newNode;
-        current = newNode->next;
+        newNode->next = temp;
+        if (temp != NULL) {
+            temp->prev = newNode;
+        }
+        current = temp; // Lanjut ke node berikutnya
     } while (current != *head);
 }
 

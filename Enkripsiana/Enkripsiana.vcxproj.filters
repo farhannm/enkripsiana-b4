@@ -26,5 +26,8 @@
     <ClInclude Include="enkripsiana.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="uihead.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

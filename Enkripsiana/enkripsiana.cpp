@@ -524,11 +524,15 @@ int impEncrypt() {
     // Shuffle linked list
     shuffleNode(&head);
 
-    // Menyisipkan karakter diantara setiap karakter yang dienkripsi
-    insertAfterEachNode(&head, ('A' + rand() % 26));
-
     // Output cipher text setelah pengacakan
-    printf("\nCipher text setelah pengacakan:\n");
+    printf("\nCipher text setelah pengacakan :\n");
+    printList(head);
+
+    // Menyisipkan karakter diantara setiap karakter yang dienkripsi
+    insertAfterEachNode(&head, '.');
+
+    // Output cipher text setelah penyisipan
+    printf("\nCipher text setelah penyisipan :\n");
     printList(head);
 
     // Simpan linked list (hasil pengacakan) ke dalam file
@@ -634,24 +638,25 @@ int impDecrypt() {
     snprintf(fullInputPath, sizeof(fullInputPath), "%s/%s", inputDirectory, inputFileName);
 
     // Baca ciphertext dari file yang dipilih
-    uint8_t ciphertext[AES_BLOCK_SIZE];
+    uint8_t ciphertext[32];
     FILE* inputFile = fopen(fullInputPath, "rb");
     if (!inputFile) {
         printf("[ERROR] Gagal membaca ciphertext dari file '%s'.\n", fullInputPath);
         return 1;
     }
-    fread(ciphertext, 1, AES_BLOCK_SIZE, inputFile);
+    fread(ciphertext, 1, 32, inputFile);
     fclose(inputFile);
 
     // Input key
     while (1) {
         printf("[INPUT] Masukkan kunci (perlu 16 karakter): ");
-        fgets(key, sizeof(key), stdin);
+        scanf("%16s", key);
         if (strlen(key) == 16) {
             break; // Keluar dari loop jika panjang kunci sesuai
         }
         else {
             printf("\n[WARNING] Kunci harus memiliki panjang 16 karakter\n");
+            while (getchar() != '\n'); // Membersihkan buffer input
         }
     }
 
@@ -659,23 +664,28 @@ int impDecrypt() {
 
     // Simpan ciphertext ke dalam linked list
     Node* head = NULL;
-    for (int i = 0; i < AES_BLOCK_SIZE; i++) {
+    for (int i = 0; i < 32; i++) {
         insertEnd(&head, ciphertext[i]);
     }
 
     // Output cipher text before restoration
-    printf("\nCipher text before restoration:\n");
+    printf("\nCipher text sebelum dikembalikan :\n");
     printList(head);
     printf("\n");
 
     // Remove karakter yang disisipkan
-    removeEverySecondNode(&head);
+    removeNodesWithData(&head, '.');
+
+    // Output cipher text before restoration
+    printf("\nCipher text setelah penghapusan karakter :\n");
+    printList(head);
+    printf("\n");
 
     // Restore original order before decryption
     restoreOriginalOrder(&head);
 
     // Output cipher text after restoration
-    printf("\nCipher text after restoration:\n");
+    printf("\nCipher text setelah pengembalian (restore order) :\n");
     printList(head);
     printf("\n");
 
@@ -722,8 +732,6 @@ int impDecrypt() {
 
     return 0;
 }
-
-
 
 
 void backOrExit() {
@@ -876,18 +884,31 @@ void insertAfterEachNode(Node** head, char data) {
 }
 
 // Function to remove every second node in the list
-void removeEverySecondNode(Node** head) {
-    if (*head == NULL || (*head)->next == *head) return;
+void removeNodesWithData(Node** head, char data) {
+    if (*head == NULL) return;
 
     Node* current = *head;
 
     do {
-        Node* nodeToRemove = current->next;
-        current->next = nodeToRemove->next;
-        nodeToRemove->next->prev = current;
-        free(nodeToRemove);
-        current = current->next;
-    } while (current != *head);
+        if (current->data == data) {
+            Node* temp = current;
+            if (temp->prev != NULL) {
+                temp->prev->next = temp->next;
+            }
+            if (temp->next != NULL) {
+                temp->next->prev = temp->prev;
+            }
+            // Update head if necessary
+            if (temp == *head) {
+                *head = temp->next;
+            }
+            current = temp->next;
+            free(temp);
+        }
+        else {
+            current = current->next;
+        }
+    } while (current != *head && current != NULL);
 }
 
 // Function to shuffle the list using Fisher-Yates algorithm

@@ -492,17 +492,23 @@ int impEncrypt() {
     }
 
     // Input key
-    while (1) {
-        printf("[INPUT] Masukkan kunci (perlu 16 karakter): ");
-        fgets(key, sizeof(key), stdin);
-        if (strlen(key) == 16) {
-            break; // Keluar dari loop jika panjang kunci sesuai
-        }
-        else {
-            printf("\n[WARNING] Kunci harus memiliki panjang 16 karakter\n");
-        }
-    }
+while (1) {
+    printf("[INPUT] Masukkan kunci (perlu 16 karakter): ");
+    scanf("%16s", key); // Membaca input dari pengguna, maksimal 16 karakter
 
+    // Menghapus newline character jika ada di buffer
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF);
+
+    // Memeriksa panjang kunci
+    if (strlen(key) == 16) { // Panjang harus 16 karakter
+        break; // Keluar dari loop jika panjang kunci sesuai
+    }
+    else {
+        // Jika input lebih panjang atau lebih pendek dari yang diharapkan, tampilkan pesan peringatan
+        printf("\n[WARNING] Kunci harus memiliki panjang 16 karakter\n\n");
+    }
+}
     aes_key_schedule_128((uint8_t*)key, roundkeys);
 
     // Encryption
@@ -648,18 +654,23 @@ int impDecrypt() {
     fclose(inputFile);
 
     // Input key
-    while (1) {
-        printf("[INPUT] Masukkan kunci (perlu 16 karakter): ");
-        scanf("%16s", key);
-        if (strlen(key) == 16) {
-            break; // Keluar dari loop jika panjang kunci sesuai
-        }
-        else {
-            printf("\n[WARNING] Kunci harus memiliki panjang 16 karakter\n");
-            while (getchar() != '\n'); // Membersihkan buffer input
-        }
-    }
+while (1) {
+    printf("[INPUT] Masukkan kunci (perlu 16 karakter): ");
+    scanf("%16s", key); // Membaca input dari pengguna, maksimal 16 karakter
 
+    // Menghapus newline character jika ada di buffer
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF);
+
+    // Memeriksa panjang kunci
+    if (strlen(key) == 16) { // Panjang harus 16 karakter
+        break; // Keluar dari loop jika panjang kunci sesuai
+    }
+    else {
+        // Jika input lebih panjang atau lebih pendek dari yang diharapkan, tampilkan pesan peringatan
+        printf("\n[WARNING] Kunci harus memiliki panjang 16 karakter\n\n");
+    }
+}
     aes_key_schedule_128((uint8_t*)key, roundkeys);
 
     // Simpan ciphertext ke dalam linked list

@@ -314,6 +314,48 @@ void backOrExit() {
     } while (!isValid);
 }
 
+void backorInputFile(int fileCount, bool isEncrypt) {
+    int opsi;
+    bool isValid;
+
+    do {
+        printf("\n[\033[1;36mINFO\033[0m] Pilihan aksi\n\n");
+        printf("(1). Kembali ke menu utama \n");
+        printf("(2). Pilih indeks file \n");
+        printf("\n[\033[1;32m>>\033[0m] Masukkan pilihan (1/2) : ");
+
+        if (scanf("%d", &opsi) == 1) {
+            switch (opsi) {
+            case 1:
+                system("cls");
+                mainMenu();
+                isValid = true;
+                break;
+            case 2:
+                if (isEncrypt) {
+                    impEncrypt();
+                }
+                else {
+                    impDecrypt();
+                }
+                isValid = true;
+                break;
+            default:
+                printf("\n\033[1;31mInput tidak valid. Masukkan angka antara 1 hingga 2.\033[0m\n");
+                isValid = false;
+                break;
+            }
+        }
+        else {
+            printf("\n\033[1;31mInput tidak valid. Masukkan angka antara 1 hingga 2.\033[0m\n");
+            isValid = false;
+            // Bersihkan buffer input
+            while (getchar() != '\n');
+        }
+
+    } while (!isValid);
+}
+
 void mainMenu() {
     int opsi, encrypt, decrypt;
     bool isValid;

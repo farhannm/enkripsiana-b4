@@ -196,137 +196,171 @@ int impDecrypt() {
         closedir(dir);
     }
 
-    // Meminta pengguna untuk memasukkan nomor indeks file
-    int fileIndex;
-    do {
-        printf("\n[\033[1;32mINPUT\033[0m] Masukkan nomor indeks file yang akan didekripsi : ");
-        if (scanf("%d", &fileIndex) != 1) {
-            printf("\033[1;31m[ERROR] Masukkan nomor indeks yang valid.\033[0m\n");
-            while (getchar() != '\n'); // Membersihkan input buffer
-        }
-        else if (fileIndex < 1 || fileIndex > fileCount) {
-            printf("\033[1;31m[ERROR] Nomor indeks tidak valid.\033[0m\n");
-        }
-        else {
-            break; // Keluar dari loop jika nomor indeks valid
-        }
-    } while (1);
+    int opsi;
+    bool isValid;
 
-    // Mencari nama file yang sesuai dengan nomor indeks
-    dir = opendir(inputDirectory);
-    int currentIndex = 0;
-    char inputFileName[256];
-    while ((entry = readdir(dir)) != NULL) {
-        if (entry->d_type == DT_REG) {
-            currentIndex++;
-            if (currentIndex == fileIndex) {
-                strcpy(inputFileName, entry->d_name);
+    do {
+        printf("\n[\033[1;36mINFO\033[0m] Pilihan aksi\n\n");
+        printf("(1). Kembali ke menu utama \n");
+        printf("(2). Pilih indeks file \n");
+        printf("\n[\033[1;32m>>\033[0m] Masukkan pilihan (1/2) : ");
+
+        if (scanf("%d", &opsi) == 1) {
+            switch (opsi) {
+            case 1:
+                system("cls");
+                mainMenu();
+                isValid = true;
+                break;
+            case 2: {
+                // Meminta pengguna untuk memasukkan nomor indeks file
+                int fileIndex;
+                do {
+                    printf("\n[\033[1;32mINPUT\033[0m] Masukkan nomor indeks file yang akan didekripsi : ");
+                    if (scanf("%d", &fileIndex) != 1) {
+                        printf("\033[1;31m[ERROR] Masukkan nomor indeks yang valid.\033[0m\n");
+                        while (getchar() != '\n'); // Membersihkan input buffer
+                    }
+                    else if (fileIndex < 1 || fileIndex > fileCount) {
+                        printf("\033[1;31m[ERROR] Nomor indeks tidak valid.\033[0m\n");
+                    }
+                    else {
+                        break; // Keluar dari loop jika nomor indeks valid
+                    }
+                } while (1);
+
+                // Mencari nama file yang sesuai dengan nomor indeks
+                dir = opendir(inputDirectory);
+                int currentIndex = 0;
+                char inputFileName[256];
+                while ((entry = readdir(dir)) != NULL) {
+                    if (entry->d_type == DT_REG) {
+                        currentIndex++;
+                        if (currentIndex == fileIndex) {
+                            strcpy(inputFileName, entry->d_name);
+                            break;
+                        }
+                    }
+                }
+                closedir(dir);
+
+                char fullInputPath[512];
+                snprintf(fullInputPath, sizeof(fullInputPath), "%s/%s", inputDirectory, inputFileName);
+
+                // Baca ciphertext dari file yang dipilih
+                uint8_t ciphertext[32];
+                FILE* inputFile = fopen(fullInputPath, "rb");
+                if (!inputFile) {
+                    printf("\033[1;31m[ERROR] Gagal membaca ciphertext dari file '%s'.\033[0m\n", fullInputPath);
+                    return 1;
+                }
+                fread(ciphertext, 1, 32, inputFile);
+                fclose(inputFile);
+
+                // Input key
+                while (1) {
+                    printf("[\033[1;32mINPUT\033[0m] Masukkan kunci (perlu 16 karakter): ");
+                    scanf("%16s", key); // Membaca input dari pengguna, maksimal 16 karakter
+
+                    // Menghapus newline character jika ada di buffer
+                    int c;
+                    while ((c = getchar()) != '\n' && c != EOF);
+
+                    // Memeriksa panjang kunci
+                    if (strlen(key) == 16) { // Panjang harus 16 karakter
+                        break; // Keluar dari loop jika panjang kunci sesuai
+                    }
+                    else {
+                        // Jika input lebih panjang atau lebih pendek dari yang diharapkan, tampilkan pesan peringatan
+                        printf("\n\033[1;33m[WARNING] Kunci harus memiliki panjang 16 karakter\033[0m\n\n");
+                    }
+                }
+                aes_key_schedule_128((uint8_t*)key, roundkeys);
+
+                // Simpan ciphertext ke dalam linked list
+                Node* head = NULL;
+                for (int i = 0; i < 32; i++) {
+                    insertEnd(&head, ciphertext[i]);
+                }
+
+                // Output cipher text before restoration
+                printf("\nCipher text sebelum dikembalikan :\n");
+                printList(head);
+                printf("\n");
+
+                // Remove karakter yang disisipkan
+                removeNodesWithData(&head, '.');
+
+                // Output cipher text before restoration
+                printf("\nCipher text setelah penghapusan karakter :\n");
+                printList(head);
+                printf("\n");
+
+                // Restore original order before decryption
+                restoreOriginalOrder(&head);
+
+                // Output cipher text after restoration
+                printf("\nCipher text setelah pengembalian (restore order) :\n");
+                printList(head);
+                printf("\n");
+
+                // Decryption
+                uint8_t decrypted_text[AES_BLOCK_SIZE]; // Output
+                Node* current = head;
+                for (int i = 0; i < AES_BLOCK_SIZE; i++) {
+                    ciphertext[i] = current->data;
+                    current = current->next;
+                }
+
+                aes_decrypt_128(roundkeys, ciphertext, decrypted_text);
+
+                // Output decrypted text
+                printf("\nDecrypted text:\n");
+                for (int i = 0; i < AES_BLOCK_SIZE; i++) {
+                    printf("%c", decrypted_text[i]);
+                }
+                printf("\n");
+
+                // Simpan teks yang telah terdekripsi ke dalam file
+                char outputFileName[512];
+                char* baseName = strrchr(inputFileName, '/');
+                if (baseName) {
+                    baseName++;
+                }
+                else {
+                    baseName = inputFileName;
+                }
+                snprintf(outputFileName, sizeof(outputFileName), "%s/decrypted_%s", outputDirectory, baseName);
+                FILE* outputFile = fopen(outputFileName, "wb");
+                if (!outputFile) {
+                    printf("\033[1;31m[ERROR] Gagal menyimpan teks terdekripsi ke dalam file '%s'.\033[0m\n", outputFileName);
+                    return 1; // Gagal menyimpan teks terdekripsi ke dalam file
+                }
+                fwrite(decrypted_text, 1, AES_BLOCK_SIZE, outputFile);
+                fclose(outputFile);
+
+                remove(fullInputPath);
+
+                printf("\n\033[1;32m[SUCCESS] Teks terdekripsi telah disimpan di '%s'\033[0m\n", outputFileName);
+
+                backOrExit();
+                isValid = true;
+                break;
+            }
+            default:
+                printf("\n\033[1;31mInput tidak valid. Masukkan angka antara 1 atau 2.\033[0m\n");
+                isValid = false;
                 break;
             }
         }
-    }
-    closedir(dir);
+        else {
+            printf("\n\033[1;31mInput tidak valid. Masukkan angka antara 1 atau 2.\033[0m\n");
+            isValid = false;
+            // Bersihkan buffer input
+            while (getchar() != '\n');
+        }
 
-    char fullInputPath[512];
-    snprintf(fullInputPath, sizeof(fullInputPath), "%s/%s", inputDirectory, inputFileName);
-
-    // Baca ciphertext dari file yang dipilih
-    uint8_t ciphertext[32];
-    FILE* inputFile = fopen(fullInputPath, "rb");
-    if (!inputFile) {
-        printf("\033[1;31m[ERROR] Gagal membaca ciphertext dari file '%s'.\033[0m\n", fullInputPath);
-        return 1;
-    }
-    fread(ciphertext, 1, 32, inputFile);
-    fclose(inputFile);
-
-    // Input key
-while (1) {
-    printf("[\033[1;32mINPUT\033[0m] Masukkan kunci (perlu 16 karakter): ");
-    scanf("%16s", key); // Membaca input dari pengguna, maksimal 16 karakter
-
-    // Menghapus newline character jika ada di buffer
-    int c;
-    while ((c = getchar()) != '\n' && c != EOF);
-
-    // Memeriksa panjang kunci
-    if (strlen(key) == 16) { // Panjang harus 16 karakter
-        break; // Keluar dari loop jika panjang kunci sesuai
-    }
-    else {
-        // Jika input lebih panjang atau lebih pendek dari yang diharapkan, tampilkan pesan peringatan
-        printf("\n\033[1;33m[WARNING] Kunci harus memiliki panjang 16 karakter\033[0m\n\n");
-    }
-}
-    aes_key_schedule_128((uint8_t*)key, roundkeys);
-
-    // Simpan ciphertext ke dalam linked list
-    Node* head = NULL;
-    for (int i = 0; i < 32; i++) {
-        insertEnd(&head, ciphertext[i]);
-    }
-
-    // Output cipher text before restoration
-    printf("\nCipher text sebelum dikembalikan :\n");
-    printList(head);
-    printf("\n");
-
-    // Remove karakter yang disisipkan
-    removeNodesWithData(&head, '.');
-
-    // Output cipher text before restoration
-    printf("\nCipher text setelah penghapusan karakter :\n");
-    printList(head);
-    printf("\n");
-
-    // Restore original order before decryption
-    restoreOriginalOrder(&head);
-
-    // Output cipher text after restoration
-    printf("\nCipher text setelah pengembalian (restore order) :\n");
-    printList(head);
-    printf("\n");
-
-    // Decryption
-    uint8_t decrypted_text[AES_BLOCK_SIZE]; // Output
-    Node* current = head;
-    for (int i = 0; i < AES_BLOCK_SIZE; i++) {
-        ciphertext[i] = current->data;
-        current = current->next;
-    }
-
-    aes_decrypt_128(roundkeys, ciphertext, decrypted_text);
-
-    // Output decrypted text
-    printf("\nDecrypted text:\n");
-    for (int i = 0; i < AES_BLOCK_SIZE; i++) {
-        printf("%c", decrypted_text[i]);
-    }
-    printf("\n");
-
-    // Simpan teks yang telah terdekripsi ke dalam file
-    char outputFileName[512];
-    char* baseName = strrchr(inputFileName, '/');
-    if (baseName) {
-        baseName++;
-    }
-    else {
-        baseName = inputFileName;
-    }
-    snprintf(outputFileName, sizeof(outputFileName), "%s/decrypted_%s", outputDirectory, baseName);
-    FILE* outputFile = fopen(outputFileName, "wb");
-    if (!outputFile) {
-        printf("\033[1;31m[ERROR] Gagal menyimpan teks terdekripsi ke dalam file '%s'.\033[0m\n", outputFileName);
-        return 1; // Gagal menyimpan teks terdekripsi ke dalam file
-    }
-    fwrite(decrypted_text, 1, AES_BLOCK_SIZE, outputFile);
-    fclose(outputFile);
-
-    remove(fullInputPath);
-
-    printf("\n\033[1;32m[SUCCESS] Teks terdekripsi telah disimpan di '%s'\033[0m\n", outputFileName);
-
-    backOrExit();
+    } while (!isValid);
 
     return 0;
 }

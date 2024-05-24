@@ -154,7 +154,7 @@ int impEncrypt() {
 
     DIR* dir = opendir(inputDirectory);
     if (!dir) {
-        printf("[ERROR] Direktori tidak ditemukan atau tidak dapat diakses.\n");
+        printf("\033[1;31m[ERROR] Direktori tidak ditemukan atau tidak dapat diakses.\033[0m\n");
         return 1;
     }
 
@@ -170,7 +170,7 @@ int impEncrypt() {
 
     // Jika tidak ada file dalam direktori "Plain", berikan pesan dan keluar
     if (fileCount == 0) {
-        printf("[INFO] Tidak ada file yang ditemukan dalam direktori.\n");
+        printf("[\033[1;32mINFO\033[0m] Tidak ada file yang ditemukan dalam direktori.\n");
         closedir(dir);
         backOrExit();
     }
@@ -188,13 +188,13 @@ int impEncrypt() {
 
     int fileIndex;
     do {
-        printf("\n[INPUT] Masukkan nomor indeks file yang akan dienkripsi : ");
+        printf("\n[\033[1;32mINPUT\033[0m] Masukkan nomor indeks file yang akan dienkripsi : ");
         if (scanf("%d", &fileIndex) != 1) {
-            printf("[ERROR] Masukkan nomor indeks yang valid.\n");
+            printf("\033[1;31m[ERROR] Masukkan nomor indeks yang valid.\033[0m\n");
             while (getchar() != '\n'); // Membersihkan input buffer
         }
         else if (fileIndex < 1 || fileIndex > fileCount) {
-            printf("[ERROR] Nomor indeks tidak valid.\n");
+            printf("\033[1;31m[ERROR] Nomor indeks tidak valid.\033[0m\n");
         }
         else {
             break; // Keluar dari loop jika nomor indeks valid
@@ -222,7 +222,7 @@ int impEncrypt() {
     // Baca plain text dari file yang dipilih
     char* plain_text = readFile(fullInputPath);
     if (!plain_text) {
-        printf("[ERROR] Gagal membaca plain text dari file '%s'.\n", fullInputPath);
+        printf("\033[1;31m[ERROR] Gagal membaca plain text dari file '%s'.\033[0m\n", fullInputPath);
         return 1;
     }
 
@@ -235,7 +235,7 @@ int impEncrypt() {
 
     // Input key
     while (1) {
-    printf("[INPUT] Masukkan kunci (perlu 16 karakter): ");
+    printf("[\033[1;32mINPUT\033[0m] Masukkan kunci (perlu 16 karakter): ");
     scanf("%16s", key); // Membaca input dari pengguna, maksimal 16 karakter
 
     // Menghapus newline character jika ada di buffer
@@ -248,7 +248,7 @@ int impEncrypt() {
     }
     else {
         // Jika input lebih panjang atau lebih pendek dari yang diharapkan, tampilkan pesan peringatan
-        printf("\n[WARNING] Kunci harus memiliki panjang 16 karakter\n\n");
+        printf("\n\033[1;33m[WARNING] Kunci harus memiliki panjang 16 karakter\033[0m\n\n");
     }
 }
     aes_key_schedule_128((uint8_t*)key, roundkeys);
@@ -287,7 +287,7 @@ int impEncrypt() {
     char outputFileName[512];
     snprintf(outputFileName, sizeof(outputFileName), "%s/encrypted_%s", outputDirectory, inputFileName);
     if (!writeListToFile(outputFileName, head)) {
-        printf("[ERROR] Gagal menyimpan hasil pengacakan ke dalam file '%s'.\n", outputFileName);
+        printf("\033[1;31m[ERROR] Gagal menyimpan hasil pengacakan ke dalam file '%s'.\033[0m\n", outputFileName);
         free(plain_text);
         free(padded_text);
         return 1;
@@ -295,7 +295,7 @@ int impEncrypt() {
 
     remove(fullInputPath);
 
-    printf("[SUCCESS] File berhasil dienkripsi. Enkripsi tersimpan di '%s'\n", outputFileName);
+    printf("\033[1;32m[SUCCESS] File berhasil dienkripsi. Enkripsi tersimpan di '%s'\033[0m\n", outputFileName);
 
     free(plain_text);
     free(padded_text);

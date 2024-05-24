@@ -53,7 +53,7 @@ void aes_key_schedule_128(const uint8_t* key, uint8_t* roundkeys) {
 char* readFile(const char* fileName) {
     FILE* file = fopen(fileName, "r");
     if (!file) {
-        printf("[ERROR] Gagal membuka file '%s' untuk dibaca.\n", fileName);
+        printf("\033[1;31m[ERROR] Gagal membuka file '%s' untuk dibaca.\033[0m\n", fileName);
         return NULL;
     }
 
@@ -63,7 +63,7 @@ char* readFile(const char* fileName) {
 
     char* buffer = (char*)malloc(fileSize + 1);
     if (!buffer) {
-        printf("[ERROR] Gagal mengalokasikan memori untuk file '%s'.\n", fileName);
+        printf("\033[1;31m[ERROR] Gagal mengalokasikan memori untuk file '%s'.\033[0m\n", fileName);
         fclose(file);
         return NULL;
     }
@@ -72,7 +72,7 @@ char* readFile(const char* fileName) {
     fclose(file);
 
     if (elementsRead != 1) {
-        printf("[ERROR] Gagal membaca file '%s'.\n", fileName);
+        printf("\033[1;31m[ERROR] Gagal membaca file '%s'.\033[0m\n", fileName);
         free(buffer);
         return NULL;
     }
@@ -85,7 +85,7 @@ int readFileDataByte(const char* filename, uint8_t* buffer, size_t buffer_size) 
     FILE* file = fopen(filename, "rb"); // Buka file dalam mode binary read
 
     if (!file) {
-        printf("[ERROR] Gagal membuka file '%s' untuk dibaca.\n", filename);
+        printf("\033[1;31m[ERROR] Gagal membuka file '%s' untuk dibaca.\033[0m\n", filename);
         return 0; // Gagal membuka file
     }
 
@@ -96,7 +96,7 @@ int readFileDataByte(const char* filename, uint8_t* buffer, size_t buffer_size) 
 
     // Periksa apakah jumlah byte yang dibaca sesuai dengan buffer_size
     if (bytes_read != buffer_size) {
-        printf("[ERROR] Gagal membaca data dari file '%s'.\n", filename);
+        printf("\033[1;31m[ERROR] Gagal membaca data dari file '%s'.\033[0m\n", filename);
         return 0; // Gagal membaca data dari file
     }
 
@@ -107,7 +107,7 @@ int readFileDataByte(const char* filename, uint8_t* buffer, size_t buffer_size) 
 int writeFile(const char* fileName, const void* data, size_t dataSize) {
     FILE* file = fopen(fileName, "w");
     if (!file) {
-        printf("[ERROR] Gagal membuka file '%s' untuk ditulis.\n", fileName);
+        printf("\033[1;31m[ERROR] Gagal membuka file '%s' untuk ditulis.\033[0m\n", fileName);
         return 0;
     }
 
@@ -115,7 +115,7 @@ int writeFile(const char* fileName, const void* data, size_t dataSize) {
     fclose(file);
 
     if (elementsWritten != 1) {
-        printf("[ERROR] Gagal menulis ke file '%s'.\n", fileName);
+        printf("\033[1;31m[ERROR] Gagal menulis ke file '%s'.\033[0m\n", fileName);
         return 0;
     }
 
@@ -127,7 +127,7 @@ int writeFileByte(const char* filename, uint8_t* data, size_t data_size) {
     FILE* file = fopen(filename, "wb"); // Buka file dalam mode binary write
 
     if (!file) {
-        printf("[ERROR] Gagal membuka file '%s' untuk ditulis.\n", filename);
+        printf("\033[1;31m[ERROR] Gagal membuka file '%s' untuk ditulis.\033[0m\n", filename);
         return 0; // Gagal membuka file
     }
 
@@ -138,7 +138,7 @@ int writeFileByte(const char* filename, uint8_t* data, size_t data_size) {
 
     // Periksa apakah jumlah byte yang ditulis sesuai dengan data_size
     if (bytes_written != data_size) {
-        printf("[ERROR] Gagal menulis data ke dalam file '%s'.\n", filename);
+        printf("\033[1;31m[ERROR] Gagal menulis data ke dalam file '%s'.\033[0m\n", filename);
         return 0; // Gagal menulis data ke dalam file
     }
 
@@ -148,7 +148,7 @@ int writeFileByte(const char* filename, uint8_t* data, size_t data_size) {
 int writeListToFile(const char* fileName, Node* head) {
     FILE* file = fopen(fileName, "w");
     if (!file) {
-        printf("[ERROR] Gagal membuka file '%s' untuk ditulis.\n", fileName);
+        printf("\033[1;31m[ERROR] Gagal membuka file '%s' untuk ditulis.\033[0m\n", fileName);
         return 0;
     }
 
@@ -179,7 +179,7 @@ void listFilesInDirectory(const char* directory) {
     char fileList[100][256]; // Array untuk menyimpan nama file (maksimum 100 file, masing-masing dengan panjang nama file maksimum 256 karakter)
 
     if ((dir = opendir(directory)) != NULL) {
-        printf("[INFO] Daftar file di direktori : \n", directory);
+        printf("[\033[1;32mINFO\033[0m] Daftar file di direktori : \n", directory);
         while ((ent = readdir(dir)) != NULL) {
             if (ent->d_type == DT_REG) { // Hanya proses file reguler
                 strcpy(fileList[fileCount], ent->d_name); // Menyalin nama file ke dalam array fileList
@@ -194,7 +194,7 @@ void listFilesInDirectory(const char* directory) {
         }
     }
     else {
-        perror("[!] Gagal membuka direktori.");
+        perror("\033[1;31m[!] Gagal membuka direktori.\033[0m");
     }
 }
 
@@ -203,7 +203,7 @@ char* padPlainText(const char* plain_text) {
     int padding_len = AES_BLOCK_SIZE - strlen(plain_text);
     char* padded_text = (char*)malloc(AES_BLOCK_SIZE + 1); // 1 extra for null-terminator
     if (!padded_text) {
-        printf("[ERROR] Memory allocation failed.\n");
+        printf("\033[1;31m[ERROR] Memory allocation failed.\033[0m\n");
         return NULL;
     }
     strcpy(padded_text, plain_text);
@@ -218,7 +218,7 @@ char* padPlainText(const char* plain_text) {
 Node* createNode(char data) {
     Node* newNode = (Node*)malloc(sizeof(Node));
     if (newNode == NULL) {
-        printf("Memory allocation failed\n");
+        printf("\033[1;31m[ERROR] Memory allocation failed.\033[0m\n");
         exit(1);
     }
     newNode->data = data;
@@ -282,10 +282,10 @@ void backOrExit() {
     bool isValid;
 
     do {
-        printf("\n[INFO] Proses selesai\n\n");
+        printf("\n[\033[1;32mINFO\033[0m] Proses selesai\n\n");
         printf("(1). Kembali ke menu utama \n");
         printf("(2). Keluar dari aplikasi \n");
-        printf("\n[>>] Masukkan pilihan (1/2) : ");
+        printf("\n[\033[1;32m>>\033[0m] Masukkan pilihan (1/2) : ");
 
         if (scanf("%d", &opsi) == 1) {
             switch (opsi) {
@@ -299,13 +299,13 @@ void backOrExit() {
                 exit(0);
                 break;
             default:
-                printf("\nInput tidak valid. Masukkan angka antara 1 hingga 2.\n");
+                printf("\n\033[1;31mInput tidak valid. Masukkan angka antara 1 hingga 2.\033[0m\n");
                 isValid = false;
                 break;
             }
         }
         else {
-            printf("\nInput tidak valid. Masukkan angka antara 1 hingga 2.\n");
+            printf("\n\033[1;31mInput tidak valid. Masukkan angka antara 1 hingga 2.\033[0m\n");
             isValid = false;
             // Bersihkan buffer input
             while (getchar() != '\n');
@@ -365,7 +365,7 @@ void mainMenu() {
             }
         }
         else {
-            printf("\nInput tidak valid. Masukkan angka antara 1 hingga 3.\n");
+            printf("\n\033[1;31mInput tidak valid. Masukkan angka antara 1 hingga 3.\033[0m\n");
             isValid = false;
             // Bersihkan buffer input
             while (getchar() != '\n');

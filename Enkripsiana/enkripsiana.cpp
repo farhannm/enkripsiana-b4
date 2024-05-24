@@ -179,7 +179,7 @@ void listFilesInDirectory(const char* directory) {
     char fileList[100][256]; // Array untuk menyimpan nama file (maksimum 100 file, masing-masing dengan panjang nama file maksimum 256 karakter)
 
     if ((dir = opendir(directory)) != NULL) {
-        printf("[\033[1;32mINFO\033[0m] Daftar file di direktori : \n", directory);
+        printf("[\033[1;36mINFO\033[0m] Daftar file di direktori : \n", directory);
         while ((ent = readdir(dir)) != NULL) {
             if (ent->d_type == DT_REG) { // Hanya proses file reguler
                 strcpy(fileList[fileCount], ent->d_name); // Menyalin nama file ke dalam array fileList
@@ -282,7 +282,7 @@ void backOrExit() {
     bool isValid;
 
     do {
-        printf("\n[\033[1;32mINFO\033[0m] Proses selesai\n\n");
+        printf("\n[\033[1;36mINFO\033[0m] Proses selesai\n\n");
         printf("(1). Kembali ke menu utama \n");
         printf("(2). Keluar dari aplikasi \n");
         printf("\n[\033[1;32m>>\033[0m] Masukkan pilihan (1/2) : ");
@@ -337,9 +337,11 @@ void mainMenu() {
             case 1:
                 system("cls");
                 banner();
-                printf("+----------------------------------+\n");
-                printf("|              Enkripsi            |\n");
-                printf("+----------------------------------+\n");
+                SetTextColor(NONE, FG_LIGHT_YELLOW);
+                SetPost(10, 47); printf("%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c\n", 201, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 187);
+                SetPost(11, 47); printf("%c             E N K R I P S I            %c\n", 186, 186);
+                SetPost(12, 47); printf("%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c\n\n\n", 200, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 188);
+                ResetTextColor();
 
                 encrypt = impEncrypt();
                 isValid = true;
@@ -347,9 +349,11 @@ void mainMenu() {
             case 2:
                 system("cls");
                 banner();
-                printf("+--------------------------------+\n");
-                printf("|            Deskripsi           |\n");
-                printf("+--------------------------------+\n");
+                SetTextColor(NONE, FG_LIGHT_YELLOW);
+                SetPost(10, 47); printf("%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c\n", 201, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 187);
+                SetPost(11, 47); printf("%c             D E K R I P S I            %c\n", 186, 186);
+                SetPost(12, 47); printf("%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c\n\n\n", 200, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 188);
+                ResetTextColor();
 
                 decrypt = impDecrypt();
                 isValid = true;

@@ -170,7 +170,7 @@ int impEncrypt() {
 
     // Jika tidak ada file dalam direktori "Plain", berikan pesan dan keluar
     if (fileCount == 0) {
-        printf("[\033[1;32mINFO\033[0m] Tidak ada file yang ditemukan dalam direktori.\n");
+        printf("[\033[1;36mINFO\033[0m] Tidak ada file yang ditemukan dalam direktori.\n");
         closedir(dir);
         backOrExit();
     }

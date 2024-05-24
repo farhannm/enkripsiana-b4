@@ -318,30 +318,35 @@ void mainMenu() {
     int opsi, encrypt, decrypt;
     bool isValid;
 
-    printf("+-------------------------------+\n");
-    printf("|     E N K R I P S I A N A     |\n");
-    printf("+-------------------------------+\n");
+    banner();
+    SetTextColor(NONE, FG_LIGHT_YELLOW);
+    SetPost(10, 47); printf("%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c\n", 201, 205,205,205,205, 205, 205, 205, 205,205,205, 205, 205, 205, 205, 205, 205,205,205,205,205,205,205,205,205,205,205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 187);
+    SetPost(11, 47); printf("%c            M A I N  M E N U            %c\n", 186,186);
+    SetPost(12, 47); printf("%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c\n", 200, 205,205,205,205, 205, 205, 205, 205,205,205, 205, 205, 205, 205, 205, 205, 205, 205,205,205,205,205,205,205,205,205,205,205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 188);
 
     do {
-        printf("\nPilih aksi yang akan dilakukan : \n");
-        printf("(1). Enkripsi \n");
-        printf("(2). Deskripsi\n");
-        printf("(3). Keluar dari aplikasi \n");
-        printf("\n[>>] Masukkan pilihan (1-3) : ");
+        SetPost(13, 52); printf("Pilih aksi yang akan dilakukan : \n");
+        SetPost(14, 52); printf("(1). Enkripsi \n");
+        SetPost(15, 52); printf("(2). Deskripsi\n");
+        SetPost(16, 52); printf("(3). Keluar dari aplikasi \n");
+        ResetTextColor();
+        printf("\n[\033[1;32m>>\033[0m] Masukkan pilihan (1-3) : ");
 
         if (scanf("%d", &opsi) == 1) {
             switch (opsi) {
             case 1:
                 system("cls");
+                banner();
                 printf("+----------------------------------+\n");
                 printf("|              Enkripsi            |\n");
-                printf("+----------------------------------+\n\n");
+                printf("+----------------------------------+\n");
 
                 encrypt = impEncrypt();
                 isValid = true;
                 break;
             case 2:
                 system("cls");
+                banner();
                 printf("+--------------------------------+\n");
                 printf("|            Deskripsi           |\n");
                 printf("+--------------------------------+\n");
@@ -354,9 +359,8 @@ void mainMenu() {
                 exit(0);
                 break;
             default:
-                printf("\nInput tidak valid. Masukkan angka antara 1 hingga 3.\n");
+                printf("\n\033[1;31mInput tidak valid. Masukkan angka antara 1 hingga 3.\033[0m\n");
                 isValid = false;
-                system("CLS");
                 break;
             }
         }

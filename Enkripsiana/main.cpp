@@ -7,7 +7,6 @@
 
 int main(int argc, char* argv[]) {
     
-    banner();
     mainMenu();
 
     return 0;

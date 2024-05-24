@@ -21,12 +21,30 @@
     <ClCompile Include="enkripsiana.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Decrypt.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Encrypt.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="uihead.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="enkripsiana.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="uihead.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Decrypt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Encrypt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dirent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

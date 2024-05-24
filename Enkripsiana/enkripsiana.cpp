@@ -278,32 +278,37 @@ void printList(Node* head) {
 }
 
 void backOrExit() {
-    int opsi, encrypt;
+    int opsi;
     bool isValid;
 
     do {
-        printf("\n[INFO]Proses selesai\n\n");
+        printf("\n[INFO] Proses selesai\n\n");
         printf("(1). Kembali ke menu utama \n");
         printf("(2). Keluar dari aplikasi \n");
         printf("\n[>>] Masukkan pilihan (1/2) : ");
-        scanf("%d", &opsi);
 
-        switch (opsi) {
-        case 1:
-            system("cls");
-
-            mainMenu();
-            isValid = true;
-            break;
-        case 2:
-            printf("\nKeluar dari aplikasi...\n");
-            exit(0);
-            break;
-        default:
-            printf("\nInput tidak valid. Masukkan angka antara 1 hingga 3.\n");
+        if (scanf("%d", &opsi) == 1) {
+            switch (opsi) {
+            case 1:
+                system("cls");
+                mainMenu();
+                isValid = true;
+                break;
+            case 2:
+                printf("\nKeluar dari aplikasi...\n");
+                exit(0);
+                break;
+            default:
+                printf("\nInput tidak valid. Masukkan angka antara 1 hingga 2.\n");
+                isValid = false;
+                break;
+            }
+        }
+        else {
+            printf("\nInput tidak valid. Masukkan angka antara 1 hingga 2.\n");
             isValid = false;
-            break;
-
+            // Bersihkan buffer input
+            while (getchar() != '\n');
         }
 
     } while (!isValid);
@@ -323,36 +328,43 @@ void mainMenu() {
         printf("(2). Deskripsi\n");
         printf("(3). Keluar dari aplikasi \n");
         printf("\n[>>] Masukkan pilihan (1-3) : ");
-        scanf("%d", &opsi);
 
-        switch (opsi) {
-        case 1:
-            system("cls");
-            printf("+----------------------------------+\n");
-            printf("|              Enkripsi            |\n");
-            printf("+----------------------------------+\n\n");
+        if (scanf("%d", &opsi) == 1) {
+            switch (opsi) {
+            case 1:
+                system("cls");
+                printf("+----------------------------------+\n");
+                printf("|              Enkripsi            |\n");
+                printf("+----------------------------------+\n\n");
 
-            encrypt = impEncrypt();
-            isValid = true;
-            break;
-        case 2:
-            system("cls");
-            printf("+--------------------------------+\n");
-            printf("|            Deskripsi           |\n");
-            printf("+--------------------------------+\n");
+                encrypt = impEncrypt();
+                isValid = true;
+                break;
+            case 2:
+                system("cls");
+                printf("+--------------------------------+\n");
+                printf("|            Deskripsi           |\n");
+                printf("+--------------------------------+\n");
 
-            decrypt = impDecrypt();
-            isValid = true;
-            break;
-        case 3:
-            printf("\nKeluar dari aplikasi...\n");
-            exit(0);
-            break;
-        default:
+                decrypt = impDecrypt();
+                isValid = true;
+                break;
+            case 3:
+                printf("\nKeluar dari aplikasi...\n");
+                exit(0);
+                break;
+            default:
+                printf("\nInput tidak valid. Masukkan angka antara 1 hingga 3.\n");
+                isValid = false;
+                system("CLS");
+                break;
+            }
+        }
+        else {
             printf("\nInput tidak valid. Masukkan angka antara 1 hingga 3.\n");
             isValid = false;
-            break;
-
+            // Bersihkan buffer input
+            while (getchar() != '\n');
         }
 
     } while (!isValid);

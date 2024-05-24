@@ -131,10 +131,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Decrypt.cpp" />
+    <ClCompile Include="Encrypt.cpp" />
     <ClCompile Include="enkripsiana.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="uihead.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Decrypt.h" />
+    <ClInclude Include="dirent.h" />
+    <ClInclude Include="Encrypt.h" />
     <ClInclude Include="enkripsiana.h" />
     <ClInclude Include="uihead.h" />
   </ItemGroup>
